@@ -11,26 +11,26 @@ footer, header, .stAppDeployButton, #MainMenu,
 }
 
 /* ==========================================================================
-   2. GLOBAL BODY CORE ENVIRONMENT & SCREEN RESPONSIVENESS
+   2. GLOBAL BODY ENVIRONMENT & RESPONSIVE SCROLL ZONE
    ========================================================================== */
 html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     background-color: #061124 !important;
     color: #ffffff !important;             
     font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+    overflow-x: hidden !important;
 }
 
-/* Base application main container layout grid values */
+/* Fluid responsive layout page structure */
 .block-container {
-    padding-top: 1rem !important;
-    padding-bottom: 9rem !important; 
+    padding-top: 0rem !important;
+    padding-bottom: 9rem !important; /* Large room baseline so chats don't go under footer box */
     width: 95% !important;
-    max-width: 1200px !important;
+    max-width: 950px !important;
     margin: 0 auto !important;
 }
 
-
 /* ==========================================================================
-   3. SINGLE CLEAN FIXED HEADER MODULE WITH FORCED INLINE CENTERING
+   3. SINGLE CLEAN FIXED HEADER MODULE WITH FORCED VIEWPORT CENTERING
    ========================================================================== */
 .fixed-header-container {
     position: fixed !important;
@@ -38,12 +38,13 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     left: 0 !important;
     width: 100% !important;
     background-color: #061124 !important;
-    z-index: 999 !important;
+    z-index: 99999 !important; /* Forces header to sit on top of scrolling text bubbles */
     display: flex !important;
-    justify-content: center !important; /* Forces perfect middle alignment horizontally */
+    flex-direction: column !important;
+    justify-content: center !important; 
     align-items: center !important;
-    padding: 20px 0 15px 0 !important;
-    box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.3) !important;
+    padding: 25px 0 15px 0 !important;
+    border-bottom: 1px solid #162644 !important;
 }
 
 .header-content-center {
@@ -55,9 +56,9 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
 
 .main-title {
     color: #ffffff !important;
-    font-size: clamp(1.8rem, 4.5vw, 3rem) !important; /* Smooth scaling across mobiles & laptops */
+    font-size: clamp(1.8rem, 4.5vw, 3rem) !important; /* Responsive scaling for mobile / laptop screens */
     font-weight: 800 !important;
-    margin: 0 0 4px 0 !important;
+    margin: 0 0 6px 0 !important;
     text-align: center !important;
     letter-spacing: -1px !important;
 }
@@ -70,10 +71,11 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     text-align: center !important;
 }
 
-/* Separation buffer block so text layout doesn't clip underneath the header */
+/* Exact ~2-inch gap buffer block that pushes chat logs cleanly under the header */
 .header-spacer-block {
-    height: 150px !important;
+    height: 145px !important; 
     display: block !important;
+    width: 100% !important;
 }
 
 /* ==========================================================================
