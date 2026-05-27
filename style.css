@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. TOTAL BAR REMOVAL (Streamlit branding icons & headers hidden)
+   1. TOTAL HIDDEN UTILITIES OVERRIDES (Hides default branding items)
    ========================================================================== */
 footer, header, .stAppDeployButton, #MainMenu, 
 [data-testid="stDecoration"], [data-testid="stHeader"], 
@@ -11,7 +11,7 @@ footer, header, .stAppDeployButton, #MainMenu,
 }
 
 /* ==========================================================================
-   2. GLOBAL BODY ENVIRONMENT & RESPONSIVE SCALING
+   2. GLOBAL BODY CORE ENVIRONMENT & SCREEN RESPONSIVENESS
    ========================================================================== */
 html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     background-color: #061124 !important;
@@ -19,30 +19,34 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
 }
 
-/* Fluid responsive wrapping container */
+/* Base application main container layout grid values */
 .block-container {
-    padding-top: 0.5rem !important;
-    padding-bottom: 7rem !important; /* Spacing so chat bubbles don't go under input bar */
+    padding-top: 1rem !important;
+    padding-bottom: 9rem !important; 
     width: 95% !important;
     max-width: 1200px !important;
     margin: 0 auto !important;
 }
 
 /* ==========================================================================
-   3. FIXED PINNED MAIN TITLE & 2-INCH SPACING MARGINS
+   3. SINGLE CLEAN FIXED HEADER MODULE WITH 2-INCH SPACING RESPONSIVENESS
    ========================================================================== */
-.fixed-header {
+.fixed-header-container {
     text-align: center !important;
     width: 100% !important;
-    padding: 20px 0 10px 0 !important;
+    padding: 25px 0 15px 0 !important;
     background-color: #061124 !important;
+    position: fixed !important;
+    top: 0 !important;
+    z-index: 999 !important;
 }
 
 .main-title {
     color: #ffffff !important;
-    font-size: clamp(2rem, 5vw, 3.2rem) !important; /* Automatically shrinks sizes on mobile screens */
+    font-size: clamp(2rem, 5vw, 3.2rem) !important;
     font-weight: 800 !important;
     margin: 0 0 5px 0 !important;
+    letter-spacing: -1px !important;
 }
 
 .main-subtitle {
@@ -52,60 +56,79 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     margin: 0 !important;
 }
 
-/* Pushes your contents exactly ~2 inches below the main titles */
-.header-spacer {
-    height: 120px !important; 
+/* Exact separation spacer down below the titles (~2 inches) */
+.header-spacer-block {
+    height: 140px !important;
     display: block !important;
 }
 
 /* ==========================================================================
-   4. STICKY INPUT BAR CONTROLS ALIGNMENT (Plus Button + Box Together)
+   4. STICKY FOOTER CONTROLS HORIZONTAL ALIGNMENT BAR (Plus + Input Together)
    ========================================================================== */
-[data-testid="stForm"], .sticky-bottom-wrapper {
+.sticky-footer-wrapper {
     position: fixed !important;
     bottom: 20px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
-    width: 90% !important;
-    max-width: 900px !important;
+    width: 92% !important;
+    max-width: 950px !important;
     z-index: 9999 !important;
     background-color: #0c1930 !important;
-    padding: 10px !important;
+    padding: 12px !important;
     border-radius: 12px !important;
     border: 1px solid #162644 !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 8px !important;
+    box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Force inner columns to pack tightly together horizontally on small phone screens */
-[data-testid="stHorizontalBlock"] {
+/* Ensure horizontal columns sit on a fluid flex-row line across laptops and mobile screens */
+.sticky-footer-wrapper [data-testid="stHorizontalBlock"] {
     display: flex !important;
     flex-direction: row !important;
+    flex-wrap: nowrap !important;
     width: 100% !important;
     align-items: center !important;
+    gap: 12px !important;
 }
 
-/* Custom styled '+' box wrapper button next to the input */
+/* Lock structural behaviors of column modules inside footer container */
+.sticky-footer-wrapper [data-testid="column"] {
+    width: auto !important;
+    min-width: 0 !important;
+    flex-grow: 1 !important;
+}
+
+.sticky-footer-wrapper [data-testid="column"]:first-child {
+    flex-grow: 0 !important;
+    flex-shrink: 0 !important;
+    width: 55px !important; /* Locks dimensions on the plus box column layout */
+}
+
+/* ==========================================================================
+   5. "+" CHAT COMPONENT TRIGGER UTILITY ACCENTS
+   ========================================================================== */
 button[key="permanent_plus_action_btn"] {
     background-color: #00b4d8 !important; 
     color: #ffffff !important;           
     border: none !important;
     border-radius: 8px !important;
-    height: 44px !important;              
-    font-size: 20px !important;
+    height: 46px !important;
+    width: 100% !important;
+    font-size: 22px !important;
     font-weight: 900 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
+    box-shadow: 0 4px 12px rgba(0, 180, 216, 0.3) !important;
 }
 
 button[key="permanent_plus_action_btn"]:hover {
     background-color: #0077b6 !important;
 }
 
-/* Clean up input text visibility box constraints */
+/* ==========================================================================
+   6. HIGH-CONTRAST CONSOLE TEXT INPUT BOX
+   ========================================================================== */
 .stChatInputContainer, div[data-testid="stChatInput"] {
     background-color: #111e38 !important;
     border: 1px solid #1d2d4d !important;
@@ -113,26 +136,33 @@ button[key="permanent_plus_action_btn"]:hover {
     width: 100% !important;
 }
 
+/* Enforces typing content and placeholders to render in stark clean white */
+.stChatInputContainer textarea, div[data-testid="stChatInput"] textarea {
+    color: #ffffff !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
 /* ==========================================================================
-   5. FILE UPLOADER DRAWER BOX STYLING
+   7. FILE UPLOADER COMPONENT LAYOUT DRIVER CARD
    ========================================================================== */
 .uploader-container-card {
     background-color: #111e38 !important;
     border: 2px dashed #00b4d8 !important;
     border-radius: 10px !important;
     padding: 15px !important;
-    margin-bottom: 15px !important;
-    width: 100% !important;
+    margin: 15px auto !important;
+    width: 92% !important;
+    max-width: 950px !important;
 }
 
-/* Fix text and label readability contrast inside uploader drawer */
 .uploader-container-card label, .uploader-container-card p, .uploader-container-card span {
     color: #ffffff !important;
     font-weight: 600 !important;
 }
 
 /* ==========================================================================
-   6. CRISP CONTRAST CHAT BUBBLES
+   8. HIGH CONTRAST READABILITY CHAT MESSAGE BUBBLES
    ========================================================================== */
 .chat-text-layer {
     color: #ffffff !important;
@@ -143,29 +173,50 @@ button[key="permanent_plus_action_btn"]:hover {
 
 [data-testid="stChatMessage"] {
     border-radius: 12px !important;
-    margin-bottom: 12px !important;
+    margin-bottom: 14px !important;
     padding: 14px !important;
 }
 
-/* User chat message layer */
+/* User Message Box Element */
 [data-testid="stChatMessage"]:nth-child(odd) {
     background-color: #1d2d4d !important; 
     border-left: 5px solid #00b4d8 !important;
 }
 
-/* Bot chat message layer */
+/* Assistant Bot Message Box Element */
 [data-testid="stChatMessage"]:nth-child(even) {
     background-color: #0c1930 !important; 
     border: 1px solid #162644 !important;
 }
 
 /* ==========================================================================
-   7. SIDEBAR OVERLAYS FOR MOBILE SIZES
+   9. SIDEBAR SYSTEM CONTROL OPTIONS STYLING
    ========================================================================== */
 [data-testid="stSidebar"] {
     background-color: #111e38 !important;
     border-right: 1px solid #1d2d4d !important;
 }
 
-.sidebar-heading { color: #ffffff !important; font-weight: 700; }
-.sidebar-subheading { color: #00b4d8 !important; font-weight: 700; }
+.sidebar-heading { 
+    color: #ffffff !important; 
+    font-weight: 700 !important; 
+    font-size: 1.5rem !important;
+}
+
+.sidebar-subheading { 
+    color: #00b4d8 !important; 
+    font-weight: 700 !important; 
+    font-size: 1.2rem !important;
+}
+
+div[data-testid="stSidebar"] button {
+    background-color: #00b4d8 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border: none !important;
+    border-radius: 6px !important;
+}
+
+div[data-testid="stSidebar"] button:hover {
+    background-color: #0077b6 !important;
+}

@@ -6,23 +6,30 @@ from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
 from pypdf import PdfReader
 
-# Load environment keys safely
+# Load local environment keys safely without breaking if st.secrets is missing
 load_dotenv()
-HF_TOKEN = os.getenv("HF_TOKEN") or (st.secrets["HF_TOKEN"] if st.secrets and "HF_TOKEN" in st.secrets else None)
+HF_TOKEN = os.getenv("HF_TOKEN")
+
+# Safe check for Streamlit Cloud deployment secrets
+try:
+    if not HF_TOKEN and "HF_TOKEN" in st.secrets:
+        HF_TOKEN = st.secrets["HF_TOKEN"]
+except Exception:
+    pass  # Ignores missing secrets context locally
 
 if not HF_TOKEN:
     st.error("Error: Please try again.")
     st.stop()
 
-# 1. Page Config setup - ensures mobile viewports scale appropriately
+# 1. Page Configuration Setup
 st.set_page_config(
     page_title="R&R Response Bot",
     page_icon="🤖",
     layout="wide",
-    initial_sidebar_state="collapsed" # Better for initial mobile rendering
+    initial_sidebar_state="expanded" 
 )
 
-# 2. Inject responsive CSS styles
+# 2. Inject CSS Stylesheet
 def load_css(file_name):
     try:
         with open(file_name, "r", encoding="utf-8") as f:
@@ -33,7 +40,7 @@ def load_css(file_name):
 load_css("style.css")
 
 # ==========================================================
-# 💾 PERSISTENT SESSIONS REGISTRY MACHINE
+# 💾 PERSISTENT SESSIONS STORAGE CONSOLE
 # ==========================================================
 SESSIONS_FILE = "chat_sessions.json"
 
@@ -85,13 +92,13 @@ def extract_pdf_text(uploaded_file):
         return "[Error extracting text content]"
 
 # ==========================================================
-# ⚙️ SIDEBAR OPTIONS CONSOLE
+# ⚙️ SIDEBAR CONSOLE (Always Visible on Load)
 # ==========================================================
 with st.sidebar:
     st.markdown("<h2 class='sidebar-heading'>⚙️ System Options</h2>", unsafe_allow_html=True)
     st.markdown("---")
     
-    if st.button("➕ New Chat Session", use_container_width=True):
+    if st.button("➕ New Chat Session", use_container_width=True, key="sidebar_new_chat_btn"):
         new_id = str(uuid.uuid4())
         st.session_state.all_sessions[new_id] = {"title": "New Chat Session", "history": []}
         save_sessions(st.session_state.all_sessions)
@@ -105,14 +112,16 @@ with st.sidebar:
     for sid, sdata in list(st.session_state.all_sessions.items()):
         display_title = sdata["title"][:18] + "..." if len(sdata["title"]) > 18 else sdata["title"]
         
-        col1, col2 = st.columns([0.8, 0.2])
+        col1, col2 = st.columns([0.75, 0.25])
         with col1:
-            if st.button(display_title, key=f"sel_{sid}", use_container_width=True):
+            is_active = (sid == st.session_state.current_session_id)
+            btn_label = f"👉 {display_title}" if is_active else display_title
+            if st.button(btn_label, key=f"sel_{sid}", use_container_width=True):
                 st.session_state.current_session_id = sid
                 st.session_state.show_uploader = False
                 st.rerun()
         with col2:
-            if st.button("🗑️", key=f"del_{sid}"):
+            if st.button("🗑️", key=f"del_{sid}", use_container_width=True):
                 sessions_to_delete.append(sid)
 
     if sessions_to_delete:
@@ -120,35 +129,36 @@ with st.sidebar:
             if dsid in st.session_state.all_sessions:
                 del st.session_state.all_sessions[dsid]
         save_sessions(st.session_state.all_sessions)
-        st.session_state.current_session_id = list(st.session_state.all_sessions.keys())[0] if st.session_state.all_sessions else str(uuid.uuid4())
-        if st.session_state.current_session_id not in st.session_state.all_sessions:
-            st.session_state.all_sessions[st.session_state.current_session_id] = {"title": "New Chat Session", "history": []}
-            save_sessions(st.session_state.all_sessions)
+        if st.session_state.current_session_id in sessions_to_delete or not st.session_state.all_sessions:
+            st.session_state.current_session_id = list(st.session_state.all_sessions.keys())[0] if st.session_state.all_sessions else str(uuid.uuid4())
+            if st.session_state.current_session_id not in st.session_state.all_sessions:
+                st.session_state.all_sessions[st.session_state.current_session_id] = {"title": "New Chat Session", "history": []}
+                save_sessions(st.session_state.all_sessions)
         st.rerun()
 
 # ==========================================================
-# 💎 MAIN INTERFACE CANVAS
+# 💎 MAIN WINDOW APP LAYOUT
 # ==========================================================
-# Fixed Header Section
+# Fixed Single Header Wrapper
 st.markdown(
     '''
-    <div class="fixed-header">
+    <div class="fixed-header-container">
         <h1 class="main-title">R&R Response Bot</h1>
         <p class="main-subtitle">Context-Interface developed by Nikhil</p>
     </div>
-    <div class="header-spacer"></div>
+    <div class="header-spacer-block"></div>
     ''', 
     unsafe_allow_html=True
 )
 
-# Chat Messages History Feed Area
+# Chat Log Main Interface Container
 chat_feed = st.container()
 with chat_feed:
     for message in st.session_state.chat_history:
         with st.chat_message(message["role"]):
             st.markdown(f'<div class="chat-text-layer">{message["content"]}</div>', unsafe_allow_html=True)
 
-# File Uploader display card container
+# File Uploader Dropdown Drawer Component
 if st.session_state.show_uploader:
     st.markdown('<div class="uploader-container-card">', unsafe_allow_html=True)
     uploaded_file = st.file_uploader(
@@ -161,12 +171,12 @@ if st.session_state.show_uploader:
 else:
     uploaded_file = None
 
-# Sticky Control Panel (Input + Plus Button horizontally paired)
-st.markdown('<div class="sticky-bottom-wrapper">', unsafe_allow_html=True)
+# Bottom Control Box Anchor Section (Plus Button + Input Form Box)
+st.markdown('<div class="sticky-footer-wrapper">', unsafe_allow_html=True)
 button_col, input_col = st.columns([0.12, 0.88])
 
 with button_col:
-    if st.button("＋", key="permanent_plus_action_btn", use_container_width=True):
+    if st.button("+", key="permanent_plus_action_btn", use_container_width=True):
         st.session_state.show_uploader = not st.session_state.show_uploader
         st.rerun()
 
@@ -174,7 +184,7 @@ with input_col:
     user_prompt = st.chat_input("Ask a question...")
 st.markdown('</div>', unsafe_allow_html=True)
 
-# Process Prompt Submissions
+# Run Inference Engine on submissions
 if user_prompt:
     file_context = ""
     display_prompt = user_prompt
