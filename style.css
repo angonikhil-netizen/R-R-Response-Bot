@@ -11,19 +11,18 @@ footer, header, .stAppDeployButton, #MainMenu,
 }
 
 /* ==========================================================================
-   2. GLOBAL BODY ENVIRONMENT & RESPONSIVE SCROLL ZONE
+   2. GLOBAL BODY CORE ENVIRONMENT & SCREEN RESPONSIVENESS
    ========================================================================== */
 html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     background-color: #061124 !important;
     color: #ffffff !important;             
     font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
-    overflow-x: hidden !important;
 }
 
-/* Fluid responsive layout page structure */
+/* Base application main container layout grid values */
 .block-container {
     padding-top: 0rem !important;
-    padding-bottom: 9rem !important; /* Large room baseline so chats don't go under footer box */
+    padding-bottom: 9rem !important; 
     width: 95% !important;
     max-width: 950px !important;
     margin: 0 auto !important;
@@ -56,7 +55,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
 
 .main-title {
     color: #ffffff !important;
-    font-size: clamp(1.8rem, 4.5vw, 3rem) !important; /* Responsive scaling for mobile / laptop screens */
+    font-size: clamp(1.8rem, 4.5vw, 3rem) !important;
     font-weight: 800 !important;
     margin: 0 0 6px 0 !important;
     text-align: center !important;
@@ -71,9 +70,9 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     text-align: center !important;
 }
 
-/* Exact ~2-inch gap buffer block that pushes chat logs cleanly under the header */
+/* ↕️ HAND-SPACE COMFORT GAP BUFFER (Around 180px) */
 .header-spacer-block {
-    height: 145px !important; 
+    height: 180px !important;
     display: block !important;
     width: 100% !important;
 }
@@ -116,7 +115,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
 .sticky-footer-wrapper [data-testid="column"]:first-child {
     flex-grow: 0 !important;
     flex-shrink: 0 !important;
-    width: 55px !important; /* Locks dimensions on the plus box column layout */
+    width: 55px !important; 
 }
 
 /* ==========================================================================
@@ -143,7 +142,7 @@ button[key="permanent_plus_action_btn"]:hover {
 }
 
 /* ==========================================================================
-   6. HIGH-CONTRAST CONSOLE TEXT INPUT BOX
+   6. HIGH-VISIBILITY TEXT INPUT AREA OVERRIDES
    ========================================================================== */
 .stChatInputContainer, div[data-testid="stChatInput"] {
     background-color: #111e38 !important;
@@ -152,11 +151,19 @@ button[key="permanent_plus_action_btn"]:hover {
     width: 100% !important;
 }
 
-/* Enforces typing content and placeholders to render in stark clean white */
-.stChatInputContainer textarea, div[data-testid="stChatInput"] textarea {
+/* FORCE USER TYPING AND PLACEHOLDER TEXT TO BE PURE STARK WHITE */
+.stChatInputContainer textarea, 
+div[data-testid="stChatInput"] textarea,
+[data-testid="stChatInputContainer"] textarea {
     color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
     font-size: 16px !important;
     font-weight: 600 !important;
+}
+
+/* Adjust visibility of mock text nodes inside the container input tree */
+div[data-testid="stChatInput"] p, .stChatInputContainer span {
+    color: #ffffff !important;
 }
 
 /* ==========================================================================
@@ -180,8 +187,9 @@ button[key="permanent_plus_action_btn"]:hover {
 /* ==========================================================================
    8. HIGH CONTRAST READABILITY CHAT MESSAGE BUBBLES
    ========================================================================== */
-.chat-text-layer {
+.chat-text-layer, [data-testid="stChatMessage"] p, [data-testid="stChatMessage"] span {
     color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
     font-size: 16px !important;
     font-weight: 600 !important;
     line-height: 1.5 !important;

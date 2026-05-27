@@ -15,7 +15,7 @@ try:
     if not HF_TOKEN and "HF_TOKEN" in st.secrets:
         HF_TOKEN = st.secrets["HF_TOKEN"]
 except Exception:
-    pass  # Ignores missing secrets context locally
+    pass  
 
 if not HF_TOKEN:
     st.error("Error: Please try again.")
@@ -137,7 +137,7 @@ with st.sidebar:
         st.rerun()
 
 # ==========================================================
-# 💎 MAIN APP WINDOW INTERFACE
+# 💎 MAIN APP WINDOW LAYOUT
 # ==========================================================
 # Fixed Single Centered Header Wrapper
 st.markdown(
