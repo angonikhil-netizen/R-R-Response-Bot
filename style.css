@@ -28,37 +28,51 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     margin: 0 auto !important;
 }
 
+
 /* ==========================================================================
-   3. SINGLE CLEAN FIXED HEADER MODULE WITH 2-INCH SPACING RESPONSIVENESS
+   3. SINGLE CLEAN FIXED HEADER MODULE WITH FORCED INLINE CENTERING
    ========================================================================== */
 .fixed-header-container {
-    text-align: center !important;
-    width: 100% !important;
-    padding: 25px 0 15px 0 !important;
-    background-color: #061124 !important;
     position: fixed !important;
     top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    background-color: #061124 !important;
     z-index: 999 !important;
+    display: flex !important;
+    justify-content: center !important; /* Forces perfect middle alignment horizontally */
+    align-items: center !important;
+    padding: 20px 0 15px 0 !important;
+    box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.3) !important;
+}
+
+.header-content-center {
+    text-align: center !important;
+    margin: 0 auto !important;
+    display: block !important;
+    width: 100% !important;
 }
 
 .main-title {
     color: #ffffff !important;
-    font-size: clamp(2rem, 5vw, 3.2rem) !important;
+    font-size: clamp(1.8rem, 4.5vw, 3rem) !important; /* Smooth scaling across mobiles & laptops */
     font-weight: 800 !important;
-    margin: 0 0 5px 0 !important;
+    margin: 0 0 4px 0 !important;
+    text-align: center !important;
     letter-spacing: -1px !important;
 }
 
 .main-subtitle {
     color: #00b4d8 !important;   
-    font-size: clamp(0.9rem, 2.5vw, 1.2rem) !important;
+    font-size: clamp(0.85rem, 2vw, 1.1rem) !important;
     font-weight: 600 !important;
     margin: 0 !important;
+    text-align: center !important;
 }
 
-/* Exact separation spacer down below the titles (~2 inches) */
+/* Separation buffer block so text layout doesn't clip underneath the header */
 .header-spacer-block {
-    height: 140px !important;
+    height: 150px !important;
     display: block !important;
 }
 

@@ -137,14 +137,16 @@ with st.sidebar:
         st.rerun()
 
 # ==========================================================
-# 💎 MAIN WINDOW APP LAYOUT
+# 💎 MAIN APP WINDOW INTERFACE
 # ==========================================================
-# Fixed Single Header Wrapper
+# Fixed Single Centered Header Wrapper
 st.markdown(
     '''
     <div class="fixed-header-container">
-        <h1 class="main-title">R&R Response Bot</h1>
-        <p class="main-subtitle">Context-Interface developed by Nikhil</p>
+        <div class="header-content-center">
+            <h1 class="main-title">R&R Response Bot</h1>
+            <p class="main-subtitle">Context-Interface developed by Nikhil</p>
+        </div>
     </div>
     <div class="header-spacer-block"></div>
     ''', 
