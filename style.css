@@ -3,9 +3,7 @@
    ========================================================================== */
 footer, header, .stAppDeployButton, #MainMenu, 
 [data-testid="stDecoration"], [data-testid="stHeader"], 
-.ViewerBadge, [data-testid="getInTouchLink"],
-button[data-testid="sidebar-toggle"],
-div[data-testid="stSidebarCollapseButton"] {
+.ViewerBadge, [data-testid="getInTouchLink"] {
     display: none !important;
     visibility: hidden !important;
     height: 0px !important;
@@ -19,6 +17,15 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     background-color: #061124 !important; /* Premium Crisp Royal Dark Blue */
     color: #e2e8f0 !important;             
     font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+/* Restores natural responsive sizing so text fits beautifully on laptop & phone */
+.block-container {
+    padding-top: 4rem !important;
+    padding-bottom: 7rem !important; 
+    width: 92% !important;
+    max-width: 840px !important;
+    margin: 0 auto !important;
 }
 
 /* Custom styling for the 2023 knowledge cutoff warning alert box */
@@ -36,14 +43,14 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
    ========================================================================== */
 .welcome-center-container {
     text-align: center !important;
-    margin-top: 12vh !important;
-    margin-bottom: 8vh !important;
+    margin-top: 10vh !important;
+    margin-bottom: 6vh !important;
     width: 100% !important;
 }
 
 .main-title {
     color: #ffffff !important;
-    font-size: clamp(2.2rem, 5vw, 3.4rem) !important;
+    font-size: clamp(1.8rem, 5vw, 3.2rem) !important;
     font-weight: 500 !important;
     letter-spacing: -0.5px !important;
     margin-bottom: 12px !important;
@@ -51,7 +58,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
 
 .main-subtitle {
     color: #00b4d8 !important;   
-    font-size: 1.2rem !important;
+    font-size: 1.1rem !important;
     font-weight: 400 !important;
     opacity: 0.85;
 }
@@ -81,7 +88,7 @@ button[key="permanent_plus_action_btn"] {
     background-color: #0d1e36 !important; 
     color: #ffffff !important;           
     border: 1px solid #1b355a !important;
-    border-radius: 24px !important; /* Round pill button design */
+    border-radius: 24px !important; 
     height: 46px !important;
     width: 100% !important;
     font-size: 22px !important;
@@ -100,11 +107,10 @@ button[key="permanent_plus_action_btn"]:hover {
 .stChatInputContainer, div[data-testid="stChatInput"], [data-testid="stChatInputContainer"] {
     background-color: #0d1e36 !important; 
     border: 1px solid #1b355a !important;
-    border-radius: 28px !important; /* Elegant pill box */
+    border-radius: 28px !important; 
     padding: 2px 8px !important;
 }
 
-/* Force typed input value stream text to be crisp and readable */
 .stChatInputContainer textarea, 
 div[data-testid="stChatInput"] textarea,
 [data-testid="stChatInputContainer"] textarea {
@@ -114,7 +120,6 @@ div[data-testid="stChatInput"] textarea,
     font-weight: 400 !important;
 }
 
-/* Forces prompt placeholder value text visibility */
 .stChatInputContainer textarea::placeholder,
 [data-testid="stChatInputContainer"] textarea::placeholder,
 textarea[placeholder]::placeholder {
@@ -195,7 +200,6 @@ textarea[placeholder]::placeholder {
     margin-bottom: 10px !important;
 }
 
-/* Style sidebar buttons to match the sleek transparent/ghost items of Gemini */
 div[data-testid="stSidebar"] button {
     background-color: transparent !important;
     color: #e2e8f0 !important; 
@@ -208,7 +212,6 @@ div[data-testid="stSidebar"] button {
     transition: all 0.2s ease !important;
 }
 
-/* Specific button style for New Chat */
 div[data-testid="stSidebar"] button[key="sidebar_new_chat_btn"] {
     background-color: #0d1e36 !important;
     border: 1px solid #1b355a !important;
@@ -239,61 +242,58 @@ div[data-testid="stSidebar"] button:hover {
     background: #1b355a;
     border-radius: 10px;
 }
-.scrollable-recent-container::-webkit-scrollbar-thumb:hover {
-    background: #38bdf8;
-}
 
 /* ==========================================================================
-   9. PREMIUM FULL SCREEN RESPONSIVE AI WORKSPACE (CHATGPT/GEMINI LAYOUT)
+   9. PERFECT GEMINI-STYLE NATIVE RESPONSIVE DRAWER OVERRIDES
    ========================================================================== */
-.stApp {
-    margin-top: -60px !important;
-}
 
-/* Force Main Feed to take up 100% screen layout grid width dynamically */
-.main .block-container {
-    max-width: 100% !important;
-    width: 100% !important;
-    padding-left: 2rem !important;
-    padding-right: 2rem !important;
-    padding-top: 2rem !important;
-    padding-bottom: 6rem !important; /* Leave space so bottom panel doesn't overlay text */
-}
-
-/* LAPTOPS & DESKTOPS VIEWPORT */
+/* Keep laptop layout fixed and wide */
 @media (min-width: 992px) {
     section[data-testid="stSidebar"] {
-        min-width: 300px !important;
-        max-width: 300px !important;
+        min-width: 280px !important;
+        max-width: 280px !important;
     }
 }
 
-/* MOBILE PHONES & TABLETS VIEWPORT (Forces exact parallel structure matching laptops) */
+/* Perfect mobile slide-out behavior matching Image 3 */
 @media (max-width: 991px) {
-    /* Freeze layout from collapsing inside floating menu drawer */
+    /* Let the sidebar act as a temporary overlay panel on top of main feed */
     section[data-testid="stSidebar"] {
         position: fixed !important;
-        left: 0 !important;
-        top: 0 !important;
-        height: 100vh !important;
-        min-width: 260px !important; /* Slightly narrower screen blueprint size */
-        max-width: 260px !important;
-        display: flex !important;
-        visibility: visible !important;
-        transform: none !important;
         z-index: 999999 !important;
-        box-shadow: 4px 0px 15px rgba(0,0,0,0.5);
+        background-color: #030a16 !important;
+        box-shadow: 10px 0px 30px rgba(0, 0, 0, 0.7);
     }
-
-    /* Shift chat window view over cleanly so no text content goes missing under sidebar */
+    
+    /* Ensure the main workspace stays full-width under the slide-out view */
     .main {
-        margin-left: 260px !important;
-        width: calc(100% - 260px) !important;
+        margin-left: 0px !important;
+        width: 100% !important;
     }
+}
 
-    /* Reduce margins inside narrow cellular display layers */
-    .main .block-container {
-        padding-left: 1.2rem !important;
-        padding-right: 1.2rem !important;
-    }
+/* Elegant Gemini-Style Three Lines Menu Button customization */
+button[data-testid="sidebar-toggle"], 
+div[data-testid="stSidebarCollapseButton"] button {
+    display: flex !important;
+    visibility: visible !important;
+    position: fixed !important;
+    top: 15px !important;
+    left: 15px !important;
+    background-color: #0d1e36 !important;
+    border: 1px solid #1b355a !important;
+    color: #ffffff !important;
+    border-radius: 8px !important;
+    z-index: 9999999 !important;
+    width: 40px !important;
+    height: 40px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+}
+
+button[data-testid="sidebar-toggle"]:hover,
+div[data-testid="stSidebarCollapseButton"] button:hover {
+    background-color: #1b355a !important;
+    border-color: #00b4d8 !important;
 }
