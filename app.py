@@ -6,26 +6,23 @@ from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
 from pypdf import PdfReader
 
-# 1. Securely load your Hugging Face Environment Key
+# Load environment keys safely
 load_dotenv()
-HF_TOKEN = os.getenv("HF_TOKEN")
-
-if st.secrets and "HF_TOKEN" in st.secrets:
-    HF_TOKEN = st.secrets["HF_TOKEN"]
+HF_TOKEN = os.getenv("HF_TOKEN") or (st.secrets["HF_TOKEN"] if st.secrets and "HF_TOKEN" in st.secrets else None)
 
 if not HF_TOKEN:
-    st.error("Error: Please provide a valid HF_TOKEN.")
+    st.error("Error: Please try again.")
     st.stop()
 
-# 2. Configure Page Alignment Setup - Locks responsive boundaries
+# 1. Page Config setup - ensures mobile viewports scale appropriately
 st.set_page_config(
     page_title="R&R Response Bot",
     page_icon="🤖",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed" # Better for initial mobile rendering
 )
 
-# 3. Inject CSS Theme and Visibility Fixes
+# 2. Inject responsive CSS styles
 def load_css(file_name):
     try:
         with open(file_name, "r", encoding="utf-8") as f:
@@ -36,7 +33,7 @@ def load_css(file_name):
 load_css("style.css")
 
 # ==========================================================
-# 💾 PERSISTENT CHAT HISTORY STORAGE MACHINE
+# 💾 PERSISTENT SESSIONS REGISTRY MACHINE
 # ==========================================================
 SESSIONS_FILE = "chat_sessions.json"
 
@@ -70,44 +67,31 @@ if "current_session_id" not in st.session_state:
 if "show_uploader" not in st.session_state:
     st.session_state.show_uploader = False
 
-# Sync chat history reactively
 st.session_state.chat_history = st.session_state.all_sessions.get(
     st.session_state.current_session_id, {}
 ).get("history", [])
 
-# ==========================================================
-# 🤖 HUGGING FACE ENGINE CONFIGURATION
-# ==========================================================
 @st.cache_resource
 def get_hf_client():
-    return InferenceClient(
-        model="meta-llama/Meta-Llama-3-8B-Instruct", 
-        token=HF_TOKEN
-    )
+    return InferenceClient(model="meta-llama/Meta-Llama-3-8B-Instruct", token=HF_TOKEN)
 
 client = get_hf_client()
 
 def extract_pdf_text(uploaded_file):
     try:
         reader = PdfReader(uploaded_file)
-        text = ""
-        for page in reader.pages:
-            content = page.extract_text()
-            if content:
-                text += content + "\n"
-        return text if text.strip() else "[Empty PDF Document]"
-    except Exception as e:
-        return f"[Error processing PDF contents: {str(e)}]"
+        return "\n".join([page.extract_text() for page in reader.pages if page.extract_text()])
+    except:
+        return "[Error extracting text content]"
 
 # ==========================================================
-# ⚙️ SIDEBAR OPTIONS PANEL
+# ⚙️ SIDEBAR OPTIONS CONSOLE
 # ==========================================================
 with st.sidebar:
     st.markdown("<h2 class='sidebar-heading'>⚙️ System Options</h2>", unsafe_allow_html=True)
-    st.markdown("<p class='sidebar-text'>Use this panel to manage current runtime variables.</p>", unsafe_allow_html=True)
     st.markdown("---")
     
-    if st.button("➕ New Chat Session", use_container_width=True, key="new_session_btn"):
+    if st.button("➕ New Chat Session", use_container_width=True):
         new_id = str(uuid.uuid4())
         st.session_state.all_sessions[new_id] = {"title": "New Chat Session", "history": []}
         save_sessions(st.session_state.all_sessions)
@@ -119,18 +103,16 @@ with st.sidebar:
     
     sessions_to_delete = []
     for sid, sdata in list(st.session_state.all_sessions.items()):
-        display_title = sdata["title"][:22] + "..." if len(sdata["title"]) > 22 else sdata["title"]
+        display_title = sdata["title"][:18] + "..." if len(sdata["title"]) > 18 else sdata["title"]
         
-        side_col1, side_col2 = st.columns([0.80, 0.20])
-        with side_col1:
-            is_active = (sid == st.session_state.current_session_id)
-            btn_label = f"👉 {display_title}" if is_active else display_title
-            if st.button(btn_label, key=f"sel_{sid}", use_container_width=True):
+        col1, col2 = st.columns([0.8, 0.2])
+        with col1:
+            if st.button(display_title, key=f"sel_{sid}", use_container_width=True):
                 st.session_state.current_session_id = sid
                 st.session_state.show_uploader = False
                 st.rerun()
-        with side_col2:
-            if st.button("🗑️", key=f"del_{sid}", help="Delete chat log"):
+        with col2:
+            if st.button("🗑️", key=f"del_{sid}"):
                 sessions_to_delete.append(sid)
 
     if sessions_to_delete:
@@ -138,45 +120,51 @@ with st.sidebar:
             if dsid in st.session_state.all_sessions:
                 del st.session_state.all_sessions[dsid]
         save_sessions(st.session_state.all_sessions)
-        if st.session_state.current_session_id in sessions_to_delete or not st.session_state.all_sessions:
-            if st.session_state.all_sessions:
-                st.session_state.current_session_id = list(st.session_state.all_sessions.keys())[0]
-            else:
-                st.session_state.current_session_id = str(uuid.uuid4())
-                st.session_state.all_sessions[st.session_state.current_session_id] = {"title": "New Chat Session", "history": []}
-                save_sessions(st.session_state.all_sessions)
+        st.session_state.current_session_id = list(st.session_state.all_sessions.keys())[0] if st.session_state.all_sessions else str(uuid.uuid4())
+        if st.session_state.current_session_id not in st.session_state.all_sessions:
+            st.session_state.all_sessions[st.session_state.current_session_id] = {"title": "New Chat Session", "history": []}
+            save_sessions(st.session_state.all_sessions)
         st.rerun()
 
 # ==========================================================
-# 🛑 STICKY FIXED HEADER BLOCK
+# 💎 MAIN INTERFACE CANVAS
 # ==========================================================
+# Fixed Header Section
 st.markdown(
     '''
     <div class="fixed-header">
         <h1 class="main-title">R&R Response Bot</h1>
         <p class="main-subtitle">Context-Interface developed by Nikhil</p>
     </div>
+    <div class="header-spacer"></div>
     ''', 
     unsafe_allow_html=True
 )
 
-# ==========================================================
-# 📜 INDEPENDENTLY SCROLLABLE CHAT CONTAINER (FROZEN WINDOW)
-# ==========================================================
-# Passing an explicit height parameter anchors the frame and prevents global viewport page drops
-chat_scroll_box = st.container(height=520, border=False)
-
-with chat_scroll_box:
+# Chat Messages History Feed Area
+chat_feed = st.container()
+with chat_feed:
     for message in st.session_state.chat_history:
         with st.chat_message(message["role"]):
             st.markdown(f'<div class="chat-text-layer">{message["content"]}</div>', unsafe_allow_html=True)
 
-# ==========================================================
-# 📍 FIXED CONTROL BOTTOM INTERFACE AREA
-# ==========================================================
-st.markdown('<div class="sticky-bottom-wrapper">', unsafe_allow_html=True)
+# File Uploader display card container
+if st.session_state.show_uploader:
+    st.markdown('<div class="uploader-container-card">', unsafe_allow_html=True)
+    uploaded_file = st.file_uploader(
+        "Select context material", 
+        type=["pdf", "png", "jpg", "jpeg", "mp3", "wav", "m4a"],
+        label_visibility="collapsed",
+        key="active_file_picker"
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
+else:
+    uploaded_file = None
 
-button_col, input_col = st.columns([0.06, 0.94])
+# Sticky Control Panel (Input + Plus Button horizontally paired)
+st.markdown('<div class="sticky-bottom-wrapper">', unsafe_allow_html=True)
+button_col, input_col = st.columns([0.12, 0.88])
+
 with button_col:
     if st.button("＋", key="permanent_plus_action_btn", use_container_width=True):
         st.session_state.show_uploader = not st.session_state.show_uploader
@@ -184,97 +172,51 @@ with button_col:
 
 with input_col:
     user_prompt = st.chat_input("Ask a question...")
-
-if st.session_state.show_uploader:
-    st.markdown('<div class="uploader-container-card">', unsafe_allow_html=True)
-    uploaded_file = st.file_uploader(
-        "Upload Context Files, Audio, or Images:", 
-        type=["pdf", "png", "jpg", "jpeg", "mp3", "wav", "m4a"],
-        label_visibility="visible",
-        key="active_file_picker"
-    )
-    st.markdown('</div>', unsafe_allow_html=True)
-else:
-    uploaded_file = None
-
-if uploaded_file is not None:
-    st.markdown(
-        f"<div class='upload-success-badge'>📎 Staged context file: {uploaded_file.name}</div>", 
-        unsafe_allow_html=True
-    )
-
 st.markdown('</div>', unsafe_allow_html=True)
 
-# ==========================================================
-# 🚀 CORE PROMPT EXECUTION AND CONSTRAINED INFERENCE LOOP
-# ==========================================================
+# Process Prompt Submissions
 if user_prompt:
     file_context = ""
     display_prompt = user_prompt
     
     if uploaded_file is not None:
         file_extension = uploaded_file.name.split(".")[-1].lower()
-        
         if file_extension == "pdf":
-            extracted_content = extract_pdf_text(uploaded_file)
-            file_context = f"--- BEGIN ATTACHED FILE CONTEXT ({uploaded_file.name}) ---\n{extracted_content}\n--- END ATTACHED FILE CONTEXT ---\n\n"
-            display_prompt = f"📎 *Attached PDF: {uploaded_file.name}*\n\n{user_prompt}"
-                
-        elif file_extension in ["png", "jpg", "jpeg"]:
-            file_context = f"[System Alert: User attached image '{uploaded_file.name}']\n\n"
-            display_prompt = f"🖼️ *Attached Image: {uploaded_file.name}*\n\n{user_prompt}"
+            file_context = f"--- PDF CONTENT ({uploaded_file.name}) ---\n{extract_pdf_text(uploaded_file)}\n---\n"
+            display_prompt = f"📎 *PDF Attached: {uploaded_file.name}*\n\n{user_prompt}"
+        else:
+            display_prompt = f"🖼️ *File Attached: {uploaded_file.name}*\n\n{user_prompt}"
 
-    # Append question locally
     st.session_state.chat_history.append({"role": "user", "content": display_prompt})
     
     if st.session_state.all_sessions[st.session_state.current_session_id]["title"] == "New Chat Session":
-        st.session_state.all_sessions[st.session_state.current_session_id]["title"] = user_prompt[:22]
-    
-    with chat_scroll_box:
+        st.session_state.all_sessions[st.session_state.current_session_id]["title"] = user_prompt[:20]
+        
+    with chat_feed:
         with st.chat_message("user"):
             st.markdown(f'<div class="chat-text-layer">{display_prompt}</div>', unsafe_allow_html=True)
-        
         with st.chat_message("assistant"):
-            response_placeholder = st.empty()
+            resp_box = st.empty()
             
-            # System settings strictly configure a 50+ word expansion minimum limit
             system_instruction = {
                 "role": "system", 
-                "content": (
-                    "You are a helpful, highly accurate AI assistant. The current year is 2026. "
-                    "CRITICAL RESPONSE DIRECTIVE: Your answer must be detailed, comprehensive, and "
-                    "MUST contain at least 50 words minimum. Do not summarize abruptly or write short responses."
-                )
+                "content": "You are a helpful assistant. Provide comprehensive details with a 50-word minimum response length."
             }
-            
-            recent_memory = st.session_state.chat_history[-14:]
-            payload_messages = [system_instruction] + [{"role": m["role"], "content": m["content"]} for m in recent_memory]
-            
+            payload = [system_instruction] + [{"role": m["role"], "content": m["content"]} for m in st.session_state.chat_history[-50:]]
             if file_context:
-                payload_messages[-1]["content"] = f"{file_context}User Question: {user_prompt}"
-            
-            try:
-                stream = client.chat_completion(
-                    messages=payload_messages,
-                    max_tokens=1024,
-                    temperature=0.3,
-                    stream=True
-                )
+                payload[-1]["content"] = f"{file_context}User Request: {user_prompt}"
                 
-                full_response = ""
+            try:
+                stream = client.chat_completion(messages=payload, max_tokens=1024, temperature=0.3, stream=True)
+                full_resp = ""
                 for chunk in stream:
                     if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:
-                        content = chunk.choices[0].delta.content
-                        full_response += content
-                        response_placeholder.markdown(f'<div class="chat-text-layer">{full_response}▌</div>', unsafe_allow_html=True)
-                        
-                response_placeholder.markdown(f'<div class="chat-text-layer">{full_response}</div>', unsafe_allow_html=True)
-                st.session_state.chat_history.append({"role": "assistant", "content": full_response})
-                
+                        full_resp += chunk.choices[0].delta.content
+                        resp_box.markdown(f'<div class="chat-text-layer">{full_resp}▌</div>', unsafe_allow_html=True)
+                resp_box.markdown(f'<div class="chat-text-layer">{full_resp}</div>', unsafe_allow_html=True)
+                st.session_state.chat_history.append({"role": "assistant", "content": full_resp})
                 st.session_state.all_sessions[st.session_state.current_session_id]["history"] = st.session_state.chat_history
                 save_sessions(st.session_state.all_sessions)
-                
             except Exception as e:
                 st.error(f"Feel free to ask anything: {str(e)}")
-                    
     st.rerun()

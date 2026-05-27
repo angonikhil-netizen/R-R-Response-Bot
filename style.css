@@ -1,194 +1,171 @@
 /* ==========================================================================
-   1. TOTAL STRIP DOWN OF DEPLOYMENT BAR, MENUS & FOOTERS
+   1. TOTAL BAR REMOVAL (Streamlit branding icons & headers hidden)
    ========================================================================== */
-footer {
-    visibility: hidden !important;
-    display: none !important;
-}
-
-header, .stAppDeployButton, #MainMenu, [data-testid="stDecoration"], [data-testid="stHeader"] {
+footer, header, .stAppDeployButton, #MainMenu, 
+[data-testid="stDecoration"], [data-testid="stHeader"], 
+.ViewerBadge, [data-testid="getInTouchLink"] {
     display: none !important;
     visibility: hidden !important;
     height: 0px !important;
+    opacity: 0 !important;
 }
 
 /* ==========================================================================
-   2. ROYAL DARK BLUE CANVAS SETUP & VIEWPORT LOCKS
+   2. GLOBAL BODY ENVIRONMENT & RESPONSIVE SCALING
    ========================================================================== */
 html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     background-color: #061124 !important;
     color: #ffffff !important;             
     font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: hidden !important; 
 }
 
+/* Fluid responsive wrapping container */
 .block-container {
-    padding-top: 1rem !important;
-    padding-bottom: 1rem !important;
-    width: 94% !important;
-    max-width: 1500px !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 7rem !important; /* Spacing so chat bubbles don't go under input bar */
+    width: 95% !important;
+    max-width: 1200px !important;
     margin: 0 auto !important;
-    display: flex !important;
-    flex-direction: column !important;
 }
 
 /* ==========================================================================
-   3. FIXED PINNED MAIN TITLE CONTAINER
+   3. FIXED PINNED MAIN TITLE & 2-INCH SPACING MARGINS
    ========================================================================== */
 .fixed-header {
     text-align: center !important;
     width: 100% !important;
-    padding-top: 10px !important;
-    padding-bottom: 15px !important;
+    padding: 20px 0 10px 0 !important;
     background-color: #061124 !important;
-    z-index: 999 !important;
 }
 
 .main-title {
     color: #ffffff !important;
-    font-size: 3.2rem !important;  
+    font-size: clamp(2rem, 5vw, 3.2rem) !important; /* Automatically shrinks sizes on mobile screens */
     font-weight: 800 !important;
     margin: 0 0 5px 0 !important;
-    letter-spacing: -1px !important;
 }
 
 .main-subtitle {
     color: #00b4d8 !important;   
-    font-size: 1.2rem !important;
+    font-size: clamp(0.9rem, 2.5vw, 1.2rem) !important;
     font-weight: 600 !important;
     margin: 0 !important;
 }
 
-/* ==========================================================================
-   4. CHAT LOG SCROLL ELEMENT SPECIFIC RULES
-   ========================================================================== */
-[data-testid="stElementContainer"] > div[data-testid="stVerticalBlockBorderWrapper"] {
-    background-color: #061124 !important;
-}
-
-div[data-testid="stChatMessageContainer"] {
-    padding-right: 10px !important;
+/* Pushes your contents exactly ~2 inches below the main titles */
+.header-spacer {
+    height: 120px !important; 
+    display: block !important;
 }
 
 /* ==========================================================================
-   5. FIXED BOTTOM ACTION BAR CONSOLE CONTROL
+   4. STICKY INPUT BAR CONTROLS ALIGNMENT (Plus Button + Box Together)
    ========================================================================== */
-.sticky-bottom-wrapper {
-    background-color: #061124 !important;
-    padding-top: 15px !important;
-    padding-bottom: 10px !important;
-    border-top: 1px solid #162644 !important;
+[data-testid="stForm"], .sticky-bottom-wrapper {
+    position: fixed !important;
+    bottom: 20px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: 90% !important;
+    max-width: 900px !important;
+    z-index: 9999 !important;
+    background-color: #0c1930 !important;
+    padding: 10px !important;
+    border-radius: 12px !important;
+    border: 1px solid #162644 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+/* Force inner columns to pack tightly together horizontally on small phone screens */
+[data-testid="stHorizontalBlock"] {
+    display: flex !important;
+    flex-direction: row !important;
     width: 100% !important;
+    align-items: center !important;
 }
 
-div[data-testid="stChatInput"] {
-    padding: 0 !important;
-}
-
-/* ==========================================================================
-   6. "+" INTERFACE TRIGGER BUTTON FORMATTING
-   ========================================================================== */
-div[data-testid="stMainBlockContainer"] button[key="permanent_plus_action_btn"],
-.stButton > button[key="permanent_plus_action_btn"] {
+/* Custom styled '+' box wrapper button next to the input */
+button[key="permanent_plus_action_btn"] {
     background-color: #00b4d8 !important; 
     color: #ffffff !important;           
     border: none !important;
     border-radius: 8px !important;
     height: 44px !important;              
-    width: 100% !important;
-    font-size: 24px !important;
+    font-size: 20px !important;
     font-weight: 900 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    box-shadow: 0 3px 10px rgba(0, 180, 216, 0.4) !important;
-    opacity: 1 !important;
-    visibility: visible !important;
+    cursor: pointer !important;
 }
 
-div[data-testid="stMainBlockContainer"] button[key="permanent_plus_action_btn"]:hover {
+button[key="permanent_plus_action_btn"]:hover {
     background-color: #0077b6 !important;
-    color: #ffffff !important;
 }
 
+/* Clean up input text visibility box constraints */
+.stChatInputContainer, div[data-testid="stChatInput"] {
+    background-color: #111e38 !important;
+    border: 1px solid #1d2d4d !important;
+    border-radius: 8px !important;
+    width: 100% !important;
+}
+
+/* ==========================================================================
+   5. FILE UPLOADER DRAWER BOX STYLING
+   ========================================================================== */
 .uploader-container-card {
     background-color: #111e38 !important;
     border: 2px dashed #00b4d8 !important;
     border-radius: 10px !important;
-    padding: 12px !important;
-    margin-top: 12px !important;
+    padding: 15px !important;
+    margin-bottom: 15px !important;
+    width: 100% !important;
 }
 
+/* Fix text and label readability contrast inside uploader drawer */
 .uploader-container-card label, .uploader-container-card p, .uploader-container-card span {
     color: #ffffff !important;
-    font-weight: 700 !important;
-}
-
-.upload-success-badge {
-    color: #00b4d8 !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    margin-top: 8px !important;
+    font-weight: 600 !important;
 }
 
 /* ==========================================================================
-   7. SIDEBAR ENVIRONMENT READABILITY FIXES
-   ========================================================================== */
-[data-testid="stSidebar"] {
-    background-color: #111e38 !important; 
-    border-right: 1px solid #1d2d4d !important;
-}
-
-.sidebar-heading {
-    color: #ffffff !important;
-    font-size: 1.5rem !important;
-    font-weight: 700 !important;
-}
-
-.sidebar-subheading {
-    color: #00b4d8 !important;
-    font-size: 1.2rem !important;
-    font-weight: 700;
-}
-
-div[data-testid="stSidebar"] button {
-    background-color: #00b4d8 !important;
-    color: #ffffff !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    border-radius: 6px !important;
-    border: none !important;
-}
-
-div[data-testid="stSidebar"] button:hover {
-    background-color: #0077b6 !important;
-}
-
-/* ==========================================================================
-   8. HIGH-VISIBILITY MESSAGE LAYER DESIGNS
+   6. CRISP CONTRAST CHAT BUBBLES
    ========================================================================== */
 .chat-text-layer {
     color: #ffffff !important;
     font-size: 16px !important;
-    font-weight: 700 !important;
+    font-weight: 600 !important;
+    line-height: 1.5 !important;
 }
 
 [data-testid="stChatMessage"] {
     border-radius: 12px !important;
-    margin-bottom: 14px !important;
-    padding: 12px !important;
+    margin-bottom: 12px !important;
+    padding: 14px !important;
 }
 
-/* User Bubble */
+/* User chat message layer */
 [data-testid="stChatMessage"]:nth-child(odd) {
-    background-color: #24344f !important; 
-    border-left: 4px solid #00b4d8 !important;
+    background-color: #1d2d4d !important; 
+    border-left: 5px solid #00b4d8 !important;
 }
 
-/* Bot Bubble */
+/* Bot chat message layer */
 [data-testid="stChatMessage"]:nth-child(even) {
     background-color: #0c1930 !important; 
     border: 1px solid #162644 !important;
 }
+
+/* ==========================================================================
+   7. SIDEBAR OVERLAYS FOR MOBILE SIZES
+   ========================================================================== */
+[data-testid="stSidebar"] {
+    background-color: #111e38 !important;
+    border-right: 1px solid #1d2d4d !important;
+}
+
+.sidebar-heading { color: #ffffff !important; font-weight: 700; }
+.sidebar-subheading { color: #00b4d8 !important; font-weight: 700; }
