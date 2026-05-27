@@ -3,7 +3,9 @@
    ========================================================================== */
 footer, header, .stAppDeployButton, #MainMenu, 
 [data-testid="stDecoration"], [data-testid="stHeader"], 
-.ViewerBadge, [data-testid="getInTouchLink"] {
+.ViewerBadge, [data-testid="getInTouchLink"],
+button[data-testid="sidebar-toggle"],
+div[data-testid="stSidebarCollapseButton"] {
     display: none !important;
     visibility: hidden !important;
     height: 0px !important;
@@ -19,12 +21,14 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     font-family: 'Inter', system-ui, sans-serif !important;
 }
 
-.block-container {
-    padding-top: 3rem !important;
-    padding-bottom: 7rem !important; 
-    width: 88% !important;
-    max-width: 880px !important;
-    margin: 0 auto !important;
+/* Custom styling for the 2023 knowledge cutoff warning alert box */
+.disclaimer-container {
+    background-color: rgba(255, 75, 75, 0.1);
+    border-left: 5px solid #ff4b4b;
+    padding: 12px 20px;
+    border-radius: 4px;
+    margin-bottom: 25px;
+    color: #ffffff;
 }
 
 /* ==========================================================================
@@ -217,20 +221,79 @@ div[data-testid="stSidebar"] button:hover {
     border-color: #1b355a !important;
 }
 
-/* Hide the entire top header bar including GitHub, Deploy, and Streamlit menus */
-header[data-testid="stHeader"] {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0px !important;
+.scrollable-recent-container {
+    max-height: 55vh;
+    overflow-y: auto;
+    padding-right: 8px;
+    margin-top: 10px;
 }
 
-/* Remove any extra blank space at the top of the page left by the header */
+.scrollable-recent-container::-webkit-scrollbar {
+    width: 5px;
+}
+.scrollable-recent-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+}
+.scrollable-recent-container::-webkit-scrollbar-thumb {
+    background: #1b355a;
+    border-radius: 10px;
+}
+.scrollable-recent-container::-webkit-scrollbar-thumb:hover {
+    background: #38bdf8;
+}
+
+/* ==========================================================================
+   9. PREMIUM FULL SCREEN RESPONSIVE AI WORKSPACE (CHATGPT/GEMINI LAYOUT)
+   ========================================================================== */
 .stApp {
-    margin-top: -50px !important;
+    margin-top: -60px !important;
 }
 
-/* Make sure the main content fills the entire screen area */
+/* Force Main Feed to take up 100% screen layout grid width dynamically */
 .main .block-container {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
     padding-top: 2rem !important;
-    padding-bottom: 2rem !important;
+    padding-bottom: 6rem !important; /* Leave space so bottom panel doesn't overlay text */
+}
+
+/* LAPTOPS & DESKTOPS VIEWPORT */
+@media (min-width: 992px) {
+    section[data-testid="stSidebar"] {
+        min-width: 300px !important;
+        max-width: 300px !important;
+    }
+}
+
+/* MOBILE PHONES & TABLETS VIEWPORT (Forces exact parallel structure matching laptops) */
+@media (max-width: 991px) {
+    /* Freeze layout from collapsing inside floating menu drawer */
+    section[data-testid="stSidebar"] {
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        height: 100vh !important;
+        min-width: 260px !important; /* Slightly narrower screen blueprint size */
+        max-width: 260px !important;
+        display: flex !important;
+        visibility: visible !important;
+        transform: none !important;
+        z-index: 999999 !important;
+        box-shadow: 4px 0px 15px rgba(0,0,0,0.5);
+    }
+
+    /* Shift chat window view over cleanly so no text content goes missing under sidebar */
+    .main {
+        margin-left: 260px !important;
+        width: calc(100% - 260px) !important;
+    }
+
+    /* Reduce margins inside narrow cellular display layers */
+    .main .block-container {
+        padding-left: 1.2rem !important;
+        padding-right: 1.2rem !important;
+    }
 }
