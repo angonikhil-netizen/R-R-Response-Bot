@@ -1,0 +1,187 @@
+/* ==========================================================================
+   1. TOTAL STRIP DOWN OF DEPLOYMENT BAR, MENUS & FOOTERS
+   ========================================================================== */
+footer {
+    visibility: hidden !important;
+    display: none !important;
+}
+
+header, .stAppDeployButton, #MainMenu, [data-testid="stDecoration"], [data-testid="stHeader"] {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0px !important;
+}
+
+/* ==========================================================================
+   2. ROYAL DARK BLUE CANVAS SETUP & SCREEN RESPONSIVENESS
+   ========================================================================== */
+html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
+    background-color: #061124 !important; /* Royal Dark Blue Canvas */
+    color: #ffffff !important;             /* Force crisp white text globally */
+    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Forces the layout container width to lock uniformly on small or big screens */
+.block-container {
+    padding-top: 2rem !important;
+    padding-bottom: 6rem !important;
+    width: 92% !important;
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+}
+
+/* ==========================================================================
+   3. BIG BOLD SINGLE CENTERED TITLE SECTION & TWO-INCH GAP
+   ========================================================================== */
+.fixed-header {
+    text-align: center !important;
+    width: 100% !important;
+    margin-top: 15px !important;
+    display: block !important;
+}
+
+.main-title {
+    color: #ffffff !important;
+    font-size: 3.8rem !important;  
+    font-weight: 800 !important;
+    margin: 0 0 10px 0 !important;
+    letter-spacing: -1px !important;
+}
+
+.main-subtitle {
+    color: #00b4d8 !important;   
+    font-size: 1.3rem !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+}
+
+/* Forces exactly 2 inches of deep vertical clearance between the title and components below */
+.title-spacer {
+    height: 2.0in !important;
+    display: block !important;
+}
+
+/* ==========================================================================
+   4. PERMANENT HIGH-VISIBILITY SIDE-BY-SIDE "+" CHAT BUTTON
+   ========================================================================== */
+/* Ensures the + button is fully visible, cyan, and perfectly level with input field */
+div[data-testid="stMainBlockContainer"] button[key="permanent_plus_action_btn"],
+.stButton > button[key="permanent_plus_action_btn"] {
+    background-color: #00b4d8 !important; 
+    color: #ffffff !important;           
+    border: none !important;
+    border-radius: 8px !important;
+    height: 46px !important;              
+    width: 100% !important;
+    font-size: 26px !important;
+    font-weight: 900 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 3px 10px rgba(0, 180, 216, 0.4) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    margin-top: 2px !important;
+}
+
+div[data-testid="stMainBlockContainer"] button[key="permanent_plus_action_btn"]:hover {
+    background-color: #0077b6 !important;
+    color: #ffffff !important;
+}
+
+/* Uploader Drop Panel Design */
+.uploader-container-card {
+    background-color: #111e38 !important;
+    border: 2px dashed #00b4d8 !important;
+    border-radius: 10px !important;
+    padding: 16px !important;
+    margin-top: 15px !important;
+}
+
+.uploader-container-card label, .uploader-container-card p, .uploader-container-card span {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    opacity: 1 !important;
+}
+
+.upload-success-badge {
+    color: #00b4d8 !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    margin: 10px 0 0 5px !important;
+}
+
+/* ==========================================================================
+   5. SIDEBAR CONTROL PANEL READABILITY ADJUSTMENTS (HISTORY TRACKS)
+   ========================================================================== */
+[data-testid="stSidebar"] {
+    background-color: #111e38 !important; 
+    border-right: 1px solid #1d2d4d !important;
+}
+
+.sidebar-heading {
+    color: #ffffff !important;
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    margin-bottom: 15px !important;
+}
+
+.sidebar-subheading {
+    color: #00b4d8 !important;
+    font-size: 1.2rem !important;
+    font-weight: 700 !important;
+    margin-top: 15px !important;
+    margin-bottom: 10px !important;
+}
+
+.sidebar-text {
+    color: #cbd5e1 !important;
+    font-size: 1rem !important;
+}
+
+/* All Sidebar navigation triggers are rendered bold white */
+div[data-testid="stSidebar"] button {
+    background-color: #00b4d8 !important;
+    color: #ffffff !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    border-radius: 6px !important;
+    border: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    padding: 10px !important;
+}
+
+div[data-testid="stSidebar"] button:hover {
+    background-color: #0077b6 !important;
+    color: #ffffff !important;
+}
+
+/* ==========================================================================
+   6. HIGH CONTRAST CHAT MESSAGE STYLING LAYERS
+   ========================================================================== */
+.chat-text-layer {
+    color: #ffffff !important;
+    font-size: 16px !important;
+    font-weight: 700 !important; /* Forces bold high-visibility output text */
+}
+
+[data-testid="stChatMessage"] {
+    border-radius: 12px !important;
+    margin-bottom: 18px !important;
+    padding: 15px !important;
+}
+
+/* User Message Bubble */
+[data-testid="stChatMessage"]:nth-child(odd) {
+    background-color: #24344f !important; 
+    border-left: 4px solid #00b4d8 !important;
+}
+
+/* Bot Message Bubble */
+[data-testid="stChatMessage"]:nth-child(even) {
+    background-color: #0c1930 !important; 
+    border: 1px solid #162644 !important;
+}
