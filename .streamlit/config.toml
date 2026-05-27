@@ -1,0 +1,9 @@
+[theme]
+primaryColor = "#00b4d8"
+backgroundColor = "#06101e"
+secondaryBackgroundColor = "#030a14"
+textColor = "#ffffff"
+font = "sans serif"
+
+[ui]
+initialSidebarState = "expanded"

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   1. TOTAL HIDDEN UTILITIES OVERRIDES (Hides default branding items)
+   1. TOTAL HIDDEN UTILITIES OVERRIDES (Removes default branding artifacts)
    ========================================================================== */
 footer, header, .stAppDeployButton, #MainMenu, 
 [data-testid="stDecoration"], [data-testid="stHeader"], 
@@ -11,210 +11,208 @@ footer, header, .stAppDeployButton, #MainMenu,
 }
 
 /* ==========================================================================
-   2. GLOBAL ROYAL DARK BLUE CORE ENVIRONMENT
+   2. GLOBAL PREMIUM ROYAL DARK BLUE CANVAS SETUP
    ========================================================================== */
 html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
-    background-color: #0d1b2a !important; /* Premium Royal Dark Blue Canvas */
-    color: #ffffff !important;             
-    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+    background-color: #061124 !important; /* Premium Crisp Royal Dark Blue */
+    color: #e2e8f0 !important;             
+    font-family: 'Inter', system-ui, sans-serif !important;
 }
 
-/* Base application main container layout grid values */
 .block-container {
-    padding-top: 0rem !important;
-    padding-bottom: 6rem !important; 
-    width: 90% !important;
-    max-width: 950px !important;
+    padding-top: 3rem !important;
+    padding-bottom: 7rem !important; 
+    width: 88% !important;
+    max-width: 880px !important;
     margin: 0 auto !important;
 }
 
 /* ==========================================================================
-   3. SINGLE CLEAN FIXED HEADER MODULE WITH FORCED VIEWPORT CENTERING
+   3. GEMINI STYLE LANDING PAGE AND HEADERS
    ========================================================================== */
-.fixed-header-container {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    background-color: #0d1b2a !important; /* Matches royal background */
-    z-index: 99999 !important; 
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important; 
-    align-items: center !important;
-    padding: 30px 0 20px 0 !important;
-    border-bottom: 1px solid #1b2a4a !important;
-}
-
-.header-content-center {
+.welcome-center-container {
     text-align: center !important;
-    margin: 0 auto !important;
-    display: block !important;
+    margin-top: 12vh !important;
+    margin-bottom: 8vh !important;
     width: 100% !important;
 }
 
 .main-title {
     color: #ffffff !important;
-    font-size: clamp(2rem, 5vw, 3.2rem) !important;
-    font-weight: 800 !important;
-    margin: 0 0 8px 0 !important;
-    text-align: center !important;
-    letter-spacing: -1px !important;
+    font-size: clamp(2.2rem, 5vw, 3.4rem) !important;
+    font-weight: 500 !important;
+    letter-spacing: -0.5px !important;
+    margin-bottom: 12px !important;
 }
 
 .main-subtitle {
     color: #00b4d8 !important;   
-    font-size: clamp(0.9rem, 2vw, 1.2rem) !important;
-    font-weight: 600 !important;
-    margin: 0 !important;
-    text-align: center !important;
+    font-size: 1.2rem !important;
+    font-weight: 400 !important;
+    opacity: 0.85;
 }
 
-/* ↕️ ONE HAND-SPACE COMFORT GAP BUFFER (190px space below title) */
-.header-spacer-block {
-    height: 190px !important;
-    display: block !important;
+.minimal-header-container {
     width: 100% !important;
+    padding: 10px 0 25px 0 !important;
+    border-bottom: 1px solid #10223b !important;
+    margin-bottom: 25px !important;
+}
+
+.minimal-title {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    color: #00b4d8 !important;
+    letter-spacing: 0.5px;
 }
 
 /* ==========================================================================
-   4. SIDE-BY-SIDE "+" BUTTON STYLE ALIGNMENT
+   4. SIDE-BY-SIDE INTERFACE ALIGNMENT OVERRIDES 
    ========================================================================== */
 .plus-button-positioner {
-    margin-top: 8px !important; /* Perfectly links alignment to match chat input line height */
+    margin-top: 4px !important; 
 }
 
 button[key="permanent_plus_action_btn"] {
-    background-color: #1b2a4a !important; 
+    background-color: #0d1e36 !important; 
     color: #ffffff !important;           
-    border: 1px solid #2e3d52 !important;
-    border-radius: 10px !important;
-    height: 48px !important;
+    border: 1px solid #1b355a !important;
+    border-radius: 24px !important; /* Round pill button design */
+    height: 46px !important;
     width: 100% !important;
-    font-size: 24px !important;
-    font-weight: 700 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    cursor: pointer !important;
-    transition: all 0.2s ease-in-out !important;
+    font-size: 22px !important;
+    font-weight: 400 !important;
+    transition: all 0.2s ease !important;
 }
 
 button[key="permanent_plus_action_btn"]:hover {
-    color: #00b4d8 !important;
+    background-color: #1b355a !important;
     border-color: #00b4d8 !important;
-    background-color: #13223f !important;
 }
 
 /* ==========================================================================
-   5. DEEP INPUT OVERRIDES - ABSOLUTE WHITE FOR TYPED TEXT & PLACEHOLDERS
+   5. NATIVE INPUT CONSOLE (HIGH VISIBILITY CRISP LIGHT ON DARK BLUE)
    ========================================================================== */
-/* Targets the main background box wrapper */
 .stChatInputContainer, div[data-testid="stChatInput"], [data-testid="stChatInputContainer"] {
-    background-color: #1b2a4a !important;
-    border: 1px solid #2e3d52 !important;
-    border-radius: 12px !important;
+    background-color: #0d1e36 !important; 
+    border: 1px solid #1b355a !important;
+    border-radius: 28px !important; /* Elegant pill box */
+    padding: 2px 8px !important;
 }
 
-/* Force typed user text to be solid bold white */
+/* Force typed input value stream text to be crisp and readable */
 .stChatInputContainer textarea, 
 div[data-testid="stChatInput"] textarea,
-[data-testid="stChatInputContainer"] textarea,
-[data-testid="stChatInputContainer"] p,
-div[data-testid="stChatInput"] p {
+[data-testid="stChatInputContainer"] textarea {
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
     font-size: 16px !important;
-    font-weight: 500 !important;
+    font-weight: 400 !important;
 }
 
-/* Targets and forces the native placeholder text to remain highly visible */
+/* Forces prompt placeholder value text visibility */
 .stChatInputContainer textarea::placeholder,
 [data-testid="stChatInputContainer"] textarea::placeholder,
 textarea[placeholder]::placeholder {
-    color: rgba(255, 255, 255, 0.75) !important;
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.75) !important;
-    opacity: 1 !important;
-}
-
-/* Fallback catch-all for webkit and gecko engines inside the input tree */
-input, textarea {
-    color: #ffffff !important;
+    color: #94a3b8 !important;
+    -webkit-text-fill-color: #94a3b8 !important;
+    opacity: 0.8 !important;
 }
 
 /* ==========================================================================
-   6. FILE UPLOADER COMPONENT LAYOUT DRIVER CARD
+   6. INTERACTIVE DIALOGUE TEXT ALIGNMENTS (NO OVERFLOW BACKGROUNDS)
    ========================================================================== */
-.uploader-container-card {
-    background-color: #1b2a4a !important;
-    border: 2px dashed #00b4d8 !important;
-    border-radius: 10px !important;
-    padding: 15px !important;
-    margin: 10px 0 20px 0 !important;
-}
-
-.uploader-container-card label, .uploader-container-card p, .uploader-container-card span {
-    color: #ffffff !important;
-    font-weight: 600 !important;
-}
-
-/* ==========================================================================
-   7. HIGH CONTRAST READABILITY CHAT MESSAGE BUBBLES
-   ========================================================================== */
-.chat-text-layer, [data-testid="stChatMessage"] p, [data-testid="stChatMessage"] span {
-    color: #ffffff !important;
-    -webkit-text-fill-color: #ffffff !important;
+.user-bubble-layer {
+    color: #ffffff !important;            
+    padding: 12px 4px !important;
+    margin-bottom: 24px !important;
     font-size: 16px !important;
-    font-weight: 500 !important;
+    line-height: 1.6 !important;
+    border-bottom: 1px solid #10223b !important;
+}
+
+.user-bubble-layer b {
+    color: #00b4d8 !important;
+    font-size: 0.95rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    margin-bottom: 6px;
+}
+
+.bot-bubble-layer {
+    color: #e2e8f0 !important;            
+    padding: 12px 4px !important;
+    margin-bottom: 32px !important;
+    font-size: 16px !important;
     line-height: 1.6 !important;
 }
 
-[data-testid="stChatMessage"] {
-    border-radius: 12px !important;
-    margin-bottom: 16px !important;
-    padding: 16px !important;
-}
-
-/* User Message Box Element */
-[data-testid="stChatMessage"]:nth-child(odd) {
-    background-color: #1f3154 !important; 
-    border-left: 5px solid #00b4d8 !important;
-}
-
-/* Assistant Bot Message Box Element */
-[data-testid="stChatMessage"]:nth-child(even) {
-    background-color: #13223f !important; 
-    border: 1px solid #1b2a4a !important;
+.bot-bubble-layer b {
+    color: #94a3b8 !important;
+    font-size: 0.95rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    margin-bottom: 6px;
 }
 
 /* ==========================================================================
-   8. SIDEBAR SYSTEM CONTROL OPTIONS STYLING
+   7. FILE CONTEXT CONTAINER UPLOADER CARD
    ========================================================================== */
-[data-testid="stSidebar"] {
-    background-color: #09131f !important;
-    border-right: 1px solid #1b2a4a !important;
+.uploader-container-card {
+    background-color: #0d1e36 !important;
+    border: 1px dashed #00b4d8 !important;
+    border-radius: 12px !important;
+    padding: 14px !important;
+    margin-bottom: 15px !important;
+}
+
+/* ==========================================================================
+   8. SIDEBAR CONTROL PANEL (CLEAN ADAPTIVE NAV SIDE PANEL)
+   ========================================================================== */
+[data-testid="stSidebar"], section[data-testid="stSidebar"] {
+    background-color: #030a16 !important; 
+    border-right: 1px solid #10223b !important;
 }
 
 .sidebar-heading { 
     color: #ffffff !important; 
-    font-weight: 700 !important; 
-    font-size: 1.5rem !important;
+    font-weight: 500 !important; 
+    font-size: 1.25rem !important;
+    padding-left: 5px;
 }
 
 .sidebar-subheading { 
-    color: #00b4d8 !important; 
-    font-weight: 700 !important; 
-    font-size: 1.2rem !important;
+    color: #ffffff !important; 
+    font-weight: 500 !important; 
+    font-size: 0.95rem !important;
+    padding-left: 5px;
+    margin-bottom: 10px !important;
 }
 
+/* Style sidebar buttons to match the sleek transparent/ghost items of Gemini */
 div[data-testid="stSidebar"] button {
-    background-color: #00b4d8 !important;
-    color: #ffffff !important;
-    font-weight: 700 !important;
-    border: none !important;
-    border-radius: 6px !important;
+    background-color: transparent !important;
+    color: #e2e8f0 !important; 
+    font-weight: 400 !important;
+    text-align: left !important;
+    justify-content: flex-start !important;
+    border: 1px solid transparent !important;
+    border-radius: 20px !important;
+    padding: 8px 14px !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Specific button style for New Chat */
+div[data-testid="stSidebar"] button[key="sidebar_new_chat_btn"] {
+    background-color: #0d1e36 !important;
+    border: 1px solid #1b355a !important;
+    font-weight: 500 !important;
 }
 
 div[data-testid="stSidebar"] button:hover {
-    background-color: #0077b6 !important;
+    background-color: #0d1e36 !important;
+    color: #ffffff !important;
+    border-color: #1b355a !important;
 }

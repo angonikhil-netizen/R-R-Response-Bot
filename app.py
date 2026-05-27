@@ -9,25 +9,21 @@ from pypdf import PdfReader
 # Load local environment keys safely
 load_dotenv()
 
-# Initialize token variable safely
+# Secure token configuration fallback to prevent system crash
 HF_TOKEN = None
-
-# Check Streamlit Secrets first (for Cloud deployments)
 try:
-    if "HF_TOKEN" in st.secrets:
+    if hasattr(st, "secrets") and "HF_TOKEN" in st.secrets:
         HF_TOKEN = st.secrets["HF_TOKEN"]
 except Exception:
     pass
 
-# Fallback to local environment file if secrets object is unavailable
 if not HF_TOKEN:
     HF_TOKEN = os.getenv("HF_TOKEN")
 
 if not HF_TOKEN:
-    st.error("Error: Please try again.")
-    st.stop()
+    HF_TOKEN = "MOCK_TOKEN_FALLBACK"
 
-# 1. Page Configuration Setup
+# Page configuration forcing the sidebar state explicitly
 st.set_page_config(
     page_title="R&R Response Bot",
     page_icon="🤖",
@@ -35,7 +31,7 @@ st.set_page_config(
     initial_sidebar_state="expanded" 
 )
 
-# 2. Inject CSS Stylesheet
+# Inject CSS Stylesheet
 def load_css(file_name):
     try:
         with open(file_name, "r", encoding="utf-8") as f:
@@ -86,6 +82,8 @@ st.session_state.chat_history = st.session_state.all_sessions.get(
 
 @st.cache_resource
 def get_hf_client():
+    if HF_TOKEN == "MOCK_TOKEN_FALLBACK":
+        return None
     return InferenceClient(model="meta-llama/Meta-Llama-3-8B-Instruct", token=HF_TOKEN)
 
 client = get_hf_client()
@@ -98,13 +96,14 @@ def extract_pdf_text(uploaded_file):
         return "[Error extracting text content]"
 
 # ==========================================================
-# ⚙️ SIDEBAR CONSOLE
+# ⚙️ LEFT SIDEBAR CONSOLE (GEMINI-INSPIRED HISTORY MANAGEMENT)
 # ==========================================================
 with st.sidebar:
-    st.markdown("<h2 class='sidebar-heading'>⚙️ System Options</h2>", unsafe_allow_html=True)
-    st.markdown("---")
+    st.markdown("<h2 class='sidebar-heading'>🤖 R&R Context</h2>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
     
-    if st.button("➕ New Chat Session", use_container_width=True, key="sidebar_new_chat_btn"):
+    # ➕ "New Chat" button matching the style layout placement
+    if st.button("➕ New Chat", use_container_width=True, key="sidebar_new_chat_btn"):
         new_id = str(uuid.uuid4())
         st.session_state.all_sessions[new_id] = {"title": "New Chat Session", "history": []}
         save_sessions(st.session_state.all_sessions)
@@ -112,17 +111,21 @@ with st.sidebar:
         st.session_state.show_uploader = False
         st.rerun()
 
-    st.markdown("<h3 class='sidebar-subheading'>📜 Recent Chats</h3>", unsafe_allow_html=True)
+    st.markdown("<br><h3 class='sidebar-subheading'>Recent Chats</h3>", unsafe_allow_html=True)
     
     sessions_to_delete = []
     for sid, sdata in list(st.session_state.all_sessions.items()):
-        display_title = sdata["title"][:18] + "..." if len(sdata["title"]) > 18 else sdata["title"]
-        
-        col1, col2 = st.columns([0.75, 0.25])
+        # Handle clear visual limits for overflow titles
+        display_title = sdata["title"][:22] + "..." if len(sdata["title"]) > 22 else sdata["title"]
+        if display_title == "New Chat Session":
+            display_title = "💬 New Chat"
+            
+        col1, col2 = st.columns([0.82, 0.18])
         with col1:
             is_active = (sid == st.session_state.current_session_id)
-            btn_label = f"👉 {display_title}" if is_active else display_title
-            if st.button(btn_label, key=f"sel_{sid}", use_container_width=True):
+            btn_class = "active-session-btn" if is_active else "inactive-session-btn"
+            
+            if st.button(display_title, key=f"sel_{sid}", use_container_width=True):
                 st.session_state.current_session_id = sid
                 st.session_state.show_uploader = False
                 st.rerun()
@@ -145,28 +148,38 @@ with st.sidebar:
 # ==========================================================
 # 💎 MAIN APP WINDOW INTERFACE
 # ==========================================================
-# Centered Fixed Floating Header
-st.markdown(
-    '''
-    <div class="fixed-header-container">
-        <div class="header-content-center">
+# Static Title Panel Header Block
+if not st.session_state.chat_history:
+    st.markdown(
+        '''
+        <div class="">
             <h1 class="main-title">R&R Response Bot</h1>
-            <p class="main-subtitle">Context-Interface developed by Nikhil</p>
+            <p class="main-subtitle">Interface Created by Nikhil.</p>
+            
         </div>
-    </div>
-    <div class="header-spacer-block"></div>
-    ''', 
-    unsafe_allow_html=True
-)
+        ''', 
+        unsafe_allow_html=True
+    )
+else:
+    st.markdown(
+        '''
+        <div class="minimal-header-container">
+            <span class="minimal-title">R&R Response Bot</span>
+        </div>
+        ''', 
+        unsafe_allow_html=True
+    )
 
-# Chat Log Main Display Feed
+# Chat Log Main Display Feed Container
 chat_feed = st.container()
 with chat_feed:
     for message in st.session_state.chat_history:
-        with st.chat_message(message["role"]):
-            st.markdown(f'<div class="chat-text-layer">{message["content"]}</div>', unsafe_allow_html=True)
+        if message["role"] == "user":
+            st.markdown(f'<div class="user-bubble-layer"><b>You</b><br>{message["content"]}</div>', unsafe_allow_html=True)
+        else:
+            st.markdown(f'<div class="bot-bubble-layer"><b>Assistant</b><br>{message["content"]}</div>', unsafe_allow_html=True)
 
-# File Uploader Option (Renders conditionally right above the input bar)
+# File Uploader Context Box Card Options
 if st.session_state.show_uploader:
     st.markdown('<div class="uploader-container-card">', unsafe_allow_html=True)
     uploaded_file = st.file_uploader(
@@ -179,8 +192,8 @@ if st.session_state.show_uploader:
 else:
     uploaded_file = None
 
-# Native Bottom Input Controls Layer (+ Button Beside the Input Box)
-footer_columns = st.columns([0.07, 0.93])
+# Bottom Layout Input Area 
+footer_columns = st.columns([0.06, 0.94])
 
 with footer_columns[0]:
     st.markdown('<div class="plus-button-positioner">', unsafe_allow_html=True)
@@ -190,9 +203,9 @@ with footer_columns[0]:
     st.markdown('</div>', unsafe_allow_html=True)
 
 with footer_columns[1]:
-    user_prompt = st.chat_input("Ask a question...")
+    user_prompt = st.chat_input("Pucho jii...")
 
-# Process Submissions
+# Process Live Inference Submissions
 if user_prompt:
     file_context = ""
     display_prompt = user_prompt
@@ -208,17 +221,20 @@ if user_prompt:
     st.session_state.chat_history.append({"role": "user", "content": display_prompt})
     
     if st.session_state.all_sessions[st.session_state.current_session_id]["title"] == "New Chat Session":
-        st.session_state.all_sessions[st.session_state.current_session_id]["title"] = user_prompt[:20]
+        st.session_state.all_sessions[st.session_state.current_session_id]["title"] = user_prompt[:25]
         
     with chat_feed:
-        with st.chat_message("user"):
-            st.markdown(f'<div class="chat-text-layer">{display_prompt}</div>', unsafe_allow_html=True)
-        with st.chat_message("assistant"):
-            resp_box = st.empty()
-            
+        st.markdown(f'<div class="user-bubble-layer"><b>You</b><br>{display_prompt}</div>', unsafe_allow_html=True)
+        resp_box = st.empty()
+        
+        if client is None:
+            full_resp = "This is a local interface simulation engine response layer. Configure a token string to activate cloud endpoints."
+            resp_box.markdown(f'<div class="bot-bubble-layer"><b>Assistant</b><br>{full_resp}</div>', unsafe_allow_html=True)
+            st.session_state.chat_history.append({"role": "assistant", "content": full_resp})
+        else:
             system_instruction = {
                 "role": "system", 
-                "content": "You are a helpful assistant. Provide comprehensive details with a 50-word minimum response length."
+                "content": "You are a helpful assistant. Provide clear, comprehensive details with a 50-word minimum response length."
             }
             payload = [system_instruction] + [{"role": m["role"], "content": m["content"]} for m in st.session_state.chat_history[-50:]]
             if file_context:
@@ -230,11 +246,12 @@ if user_prompt:
                 for chunk in stream:
                     if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:
                         full_resp += chunk.choices[0].delta.content
-                        resp_box.markdown(f'<div class="chat-text-layer">{full_resp}▌</div>', unsafe_allow_html=True)
-                resp_box.markdown(f'<div class="chat-text-layer">{full_resp}</div>', unsafe_allow_html=True)
+                        resp_box.markdown(f'<div class="bot-bubble-layer"><b>Assistant</b><br>{full_resp}▌</div>', unsafe_allow_html=True)
+                resp_box.markdown(f'<div class="bot-bubble-layer"><b>Assistant</b><br>{full_resp}</div>', unsafe_allow_html=True)
                 st.session_state.chat_history.append({"role": "assistant", "content": full_resp})
-                st.session_state.all_sessions[st.session_state.current_session_id]["history"] = st.session_state.chat_history
-                save_sessions(st.session_state.all_sessions)
             except Exception as e:
                 st.error(f"Feel free to ask anything.: {str(e)}")
+
+        st.session_state.all_sessions[st.session_state.current_session_id]["history"] = st.session_state.chat_history
+        save_sessions(st.session_state.all_sessions)
     st.rerun()
