@@ -22,7 +22,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
 /* Base application main container layout grid values */
 .block-container {
     padding-top: 0rem !important;
-    padding-bottom: 5rem !important; 
+    padding-bottom: 6rem !important; 
     width: 90% !important;
     max-width: 950px !important;
     margin: 0 auto !important;
@@ -107,28 +107,39 @@ button[key="permanent_plus_action_btn"]:hover {
 }
 
 /* ==========================================================================
-   5. HIGH-VISIBILITY NATIVE INPUT OVERRIDES (Pure Stark White Text)
+   5. DEEP INPUT OVERRIDES - ABSOLUTE WHITE FOR TYPED TEXT & PLACEHOLDERS
    ========================================================================== */
+/* Targets the main background box wrapper */
 .stChatInputContainer, div[data-testid="stChatInput"], [data-testid="stChatInputContainer"] {
     background-color: #1b2a4a !important;
     border: 1px solid #2e3d52 !important;
     border-radius: 12px !important;
 }
 
-/* FORCE USER TYPING TEXT AND PLACEHOLDERS TO BE PURE STARK WHITE */
+/* Force typed user text to be solid bold white */
 .stChatInputContainer textarea, 
 div[data-testid="stChatInput"] textarea,
-[data-testid="stChatInputContainer"] textarea {
+[data-testid="stChatInputContainer"] textarea,
+[data-testid="stChatInputContainer"] p,
+div[data-testid="stChatInput"] p {
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
     font-size: 16px !important;
     font-weight: 500 !important;
 }
 
-/* Make sure inner input text elements are readable */
-.stChatInputContainer textarea::placeholder {
-    color: rgba(255, 255, 255, 0.6) !important;
-    -webkit-text-fill-color: rgba(255, 255, 255, 0.6) !important;
+/* Targets and forces the native placeholder text to remain highly visible */
+.stChatInputContainer textarea::placeholder,
+[data-testid="stChatInputContainer"] textarea::placeholder,
+textarea[placeholder]::placeholder {
+    color: rgba(255, 255, 255, 0.75) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.75) !important;
+    opacity: 1 !important;
+}
+
+/* Fallback catch-all for webkit and gecko engines inside the input tree */
+input, textarea {
+    color: #ffffff !important;
 }
 
 /* ==========================================================================

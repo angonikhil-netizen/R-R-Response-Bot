@@ -24,7 +24,7 @@ if not HF_TOKEN:
     HF_TOKEN = os.getenv("HF_TOKEN")
 
 if not HF_TOKEN:
-    st.error("Authentication Error: HF_TOKEN missing. Please configure your token.")
+    st.error("Error: Please try again.")
     st.stop()
 
 # 1. Page Configuration Setup
@@ -183,7 +183,6 @@ else:
 footer_columns = st.columns([0.07, 0.93])
 
 with footer_columns[0]:
-    # Creates a custom div layer around the button to help lock its vertical position
     st.markdown('<div class="plus-button-positioner">', unsafe_allow_html=True)
     if st.button("+", key="permanent_plus_action_btn", use_container_width=True):
         st.session_state.show_uploader = not st.session_state.show_uploader
@@ -237,5 +236,5 @@ if user_prompt:
                 st.session_state.all_sessions[st.session_state.current_session_id]["history"] = st.session_state.chat_history
                 save_sessions(st.session_state.all_sessions)
             except Exception as e:
-                st.error(f"Engine connection anomaly: {str(e)}")
+                st.error(f"Feel free to ask anything.: {str(e)}")
     st.rerun()
