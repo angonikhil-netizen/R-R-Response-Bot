@@ -1,6 +1,5 @@
 import os
 import streamlit as st
-import json
 import uuid
 from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
@@ -9,7 +8,6 @@ from pypdf import PdfReader
 # Load local environment keys safely
 load_dotenv()
 
-# Guard rail to safely catch missing token configurations without crashing deployment
 HF_TOKEN = None
 try:
     if hasattr(st, "secrets") and st.secrets is not None:
@@ -24,7 +22,7 @@ if not HF_TOKEN:
 if not HF_TOKEN:
     HF_TOKEN = "MOCK_TOKEN_FALLBACK"
 
-# Page configuration forcing the sidebar state explicitly
+# Page configuration forcing the sidebar state explicitly to open
 st.set_page_config(
     page_title="R&R Response Bot",
     page_icon="🤖",
@@ -32,60 +30,100 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Inject CSS Stylesheet
+# Inject CSS Stylesheet & Securely Freeze Sidebar Layout Visibility
 def load_css(file_name):
     try:
         with open(file_name, "r", encoding="utf-8") as f:
             st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     except FileNotFoundError:
         pass
+    
+    # STRUCTURAL FIX: Force the sidebar visible, remove toggle items, isolate recent history scrolling
+    st.markdown(
+        '''
+        <style>
+            /* Explicitly force the sidebar container to stay open, visible, and uncollapsed */
+            section[data-testid="stSidebar"] {
+                display: flex !important;
+                visibility: visible !important;
+                min-width: 320px !important;
+                max-width: 320px !important;
+                transform: none !important;
+                transition: none !important;
+            }
+            
+            /* Remove the native hover/click collapse arrows entirely so it can never be shut */
+            button[data-testid="sidebar-toggle"], 
+            .stMain button[aria-label="Open sidebar"],
+            div[data-testid="stSidebarCollapseButton"] {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+            }
+            
+            /* Hide Streamlit's native branding footer and deploy buttons for a clean look */
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            
+            /* Custom styling for the 2023 knowledge cutoff warning alert box */
+            .disclaimer-container {
+                background-color: rgba(255, 75, 75, 0.1);
+                border-left: 5px solid #ff4b4b;
+                padding: 12px 20px;
+                border-radius: 4px;
+                margin-bottom: 25px;
+                color: #ffffff;
+            }
+            
+            /* Custom container styling to limit the height of recent chats and enable scrolling */
+            .scrollable-recent-container {
+                max-height: 55vh;
+                overflow-y: auto;
+                padding-right: 8px;
+                margin-top: 10px;
+            }
+            
+            /* Sleek modern custom scrollbar for dark themes */
+            .scrollable-recent-container::-webkit-scrollbar {
+                width: 5px;
+            }
+            .scrollable-recent-container::-webkit-scrollbar-track {
+                background: rgba(255, 255, 255, 0.03);
+                border-radius: 10px;
+            }
+            .scrollable-recent-container::-webkit-scrollbar-thumb {
+                background: #1b355a;
+                border-radius: 10px;
+            }
+            .scrollable-recent-container::-webkit-scrollbar-thumb:hover {
+                background: #38bdf8;
+            }
+        </style>
+        ''', 
+        unsafe_allow_html=True
+    )
 
 load_css("style.css")
 
 # ==========================================================
-# 💾 PERSISTENT SESSIONS DATABASE MANAGEMENT
+# 💾 ISOLATED SESSION MANAGEMENT (PRIVATE STATE)
 # ==========================================================
-SESSIONS_FILE = "chat_sessions.json"
 
-def load_saved_sessions():
-    if os.path.exists(SESSIONS_FILE):
-        try:
-            with open(SESSIONS_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except:
-            return {}
-    return {}
-
-def save_sessions(sessions):
-    try:
-        with open(SESSIONS_FILE, "w", encoding="utf-8") as f:
-            json.dump(sessions, f, indent=4)
-    except:
-        pass
-
-# Initialize session lists in Streamlit cache memory
-if "all_sessions" not in st.session_state:
-    st.session_state.all_sessions = load_saved_sessions()
-
-# Establish a default active session container if empty
-if "current_session_id" not in st.session_state:
-    if st.session_state.all_sessions:
-        st.session_state.current_session_id = list(st.session_state.all_sessions.keys())[0]
-    else:
-        st.session_state.current_session_id = str(uuid.uuid4())
-        st.session_state.all_sessions[st.session_state.current_session_id] = {
+if "user_sessions" not in st.session_state:
+    initial_id = str(uuid.uuid4())
+    st.session_state.user_sessions = {
+        initial_id: {
             "title": "New Chat Session",
             "history": []
         }
-        save_sessions(st.session_state.all_sessions)
+    }
+    st.session_state.current_session_id = initial_id
 
 if "show_uploader" not in st.session_state:
     st.session_state.show_uploader = False
 
-# Synchronize current active dialogue thread history state
-st.session_state.chat_history = st.session_state.all_sessions.get(
-    st.session_state.current_session_id, {}
-).get("history", [])
+# Synchronize current active history state safely from the browser's private state
+st.session_state.chat_history = st.session_state.user_sessions[st.session_state.current_session_id]["history"]
 
 @st.cache_resource
 def get_hf_client():
@@ -103,18 +141,20 @@ def extract_pdf_text(uploaded_file):
         return "[Error extracting text content]"
 
 # ==========================================================
-# ⚙️ LEFT SIDEBAR CONSOLE (SESSION MANAGEMENT)
+# ⚙️ LEFT SIDEBAR CONSOLE (FIXED PANEL)
 # ==========================================================
 with st.sidebar:
     st.markdown("<h2 class='sidebar-heading'>🤖 R&R</h2>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # ➕ "New Chat" initializes an isolated session ID block
     if st.button("➕ New Chat", use_container_width=True, key="sidebar_new_chat_btn"):
+        st.session_state.user_sessions[st.session_state.current_session_id]["history"] = st.session_state.chat_history
+        
         new_id = str(uuid.uuid4())
-        st.session_state.all_sessions[new_id] = {"title": "New Chat Session", "history": []}
-        save_sessions(st.session_state.all_sessions)
+        st.session_state.user_sessions[new_id] = {"title": "New Chat Session", "history": []}
+        
         st.session_state.current_session_id = new_id
+        st.session_state.chat_history = []
         st.session_state.show_uploader = False
         st.rerun()
 
@@ -122,8 +162,9 @@ with st.sidebar:
 
     sessions_to_delete = []
 
-    # Render all saved sessions along the sidebar with delete flags
-    for sid, sdata in list(st.session_state.all_sessions.items()):
+    st.markdown('<div class="scrollable-recent-container">', unsafe_allow_html=True)
+
+    for sid, sdata in list(st.session_state.user_sessions.items()):
         raw_title = sdata["title"]
         display_title = raw_title[:20] + "..." if len(raw_title) > 20 else raw_title
         if display_title == "New Chat Session":
@@ -132,9 +173,6 @@ with st.sidebar:
         col1, col2 = st.columns([0.80, 0.20])
         with col1:
             is_active = (sid == st.session_state.current_session_id)
-            btn_class = "active-session" if is_active else "inactive-session"
-
-            # Wrap standard buttons with conditional markers to visual active targets
             btn_label = f"✨ {display_title}" if is_active else f"  {display_title}"
             if st.button(btn_label, key=f"sel_{sid}", use_container_width=True):
                 st.session_state.current_session_id = sid
@@ -144,31 +182,40 @@ with st.sidebar:
             if st.button("🗑️", key=f"del_{sid}", use_container_width=True):
                 sessions_to_delete.append(sid)
 
-    # Process pending session removals safely
+    st.markdown('</div>', unsafe_allow_html=True)
+
     if sessions_to_delete:
         for dsid in sessions_to_delete:
-            if dsid in st.session_state.all_sessions:
-                del st.session_state.all_sessions[dsid]
-        save_sessions(st.session_state.all_sessions)
+            if dsid in st.session_state.user_sessions:
+                del st.session_state.user_sessions[dsid]
 
-        # Reset pointers if current active workspace was deleted
-        if st.session_state.current_session_id in sessions_to_delete or not st.session_state.all_sessions:
-            if st.session_state.all_sessions:
-                st.session_state.current_session_id = list(st.session_state.all_sessions.keys())[0]
+        if st.session_state.current_session_id in sessions_to_delete or not st.session_state.user_sessions:
+            if st.session_state.user_sessions:
+                st.session_state.current_session_id = list(st.session_state.user_sessions.keys())[0]
             else:
                 st.session_state.current_session_id = str(uuid.uuid4())
-                st.session_state.all_sessions[st.session_state.current_session_id] = {"title": "New Chat Session", "history": []}
-                save_sessions(st.session_state.all_sessions)
+                st.session_state.user_sessions[st.session_state.current_session_id] = {"title": "New Chat Session", "history": []}
         st.rerun()
 
 # ==========================================================
 # 💎 MAIN APPLICATION FEED AREA
 # ==========================================================
+
+# NEW: Knowledge cutoff disclaimer rendered at the absolute top of the app interface
+st.markdown(
+    '''
+    <div class="disclaimer-container">
+        ⚠️ <b>Disclaimer:</b> The historical knowledge and response database of this bot is current only up to <b>December 2023</b>. Real-time events occurring after this frame are unavailable.
+    </div>
+    ''',
+    unsafe_allow_html=True
+)
+
 if not st.session_state.chat_history:
     st.markdown(
         '''
-        <div class="">
-            <h1 class="main-title">R&R Response</h1>
+        <div>
+            <h1 class="main-title">R&R Response Bot</h1>
             <p class="main-subtitle">Interface created by Nikhil.</p>
         </div>
         ''',
@@ -184,7 +231,6 @@ else:
         unsafe_allow_html=True
     )
 
-# Render isolated thread messages
 chat_feed = st.container()
 with chat_feed:
     for message in st.session_state.chat_history:
@@ -205,7 +251,6 @@ if st.session_state.show_uploader:
 else:
     uploaded_file = None
 
-# Input Dock Controls
 footer_columns = st.columns([0.06, 0.94])
 
 with footer_columns[0]:
@@ -218,7 +263,6 @@ with footer_columns[0]:
 with footer_columns[1]:
     user_prompt = st.chat_input("Pucho ji...")
 
-# Handle Prompt Submissions inside the current session context block
 if user_prompt:
     file_context = ""
     display_prompt = user_prompt
@@ -233,9 +277,8 @@ if user_prompt:
 
     st.session_state.chat_history.append({"role": "user", "content": display_prompt})
 
-    # Update title from default to user query snippet on first transaction
-    if st.session_state.all_sessions[st.session_state.current_session_id]["title"] == "New Chat Session":
-        st.session_state.all_sessions[st.session_state.current_session_id]["title"] = user_prompt[:24]
+    if st.session_state.user_sessions[st.session_state.current_session_id]["title"] == "New Chat Session":
+        st.session_state.user_sessions[st.session_state.current_session_id]["title"] = user_prompt[:24]
 
     with chat_feed:
         st.markdown(f'<div class="user-bubble-layer"><b>You</b><br>{display_prompt}</div>', unsafe_allow_html=True)
@@ -246,7 +289,6 @@ if user_prompt:
             resp_box.markdown(f'<div class="bot-bubble-layer"><b>Assistant</b><br>{full_resp}</div>', unsafe_allow_html=True)
             st.session_state.chat_history.append({"role": "assistant", "content": full_resp})
         else:
-            # Enhanced system instructions enforcing creation rules and your professional bio lines
             system_instruction = {
                 "role": "system",
                 "content": (
@@ -274,13 +316,10 @@ if user_prompt:
                         full_resp += chunk.choices[0].delta.content
                         resp_box.markdown(f'<div class="bot-bubble-layer"><b>Assistant</b><br>{full_resp}▌</div>', unsafe_allow_html=True)
                 
-                # Render final response clean without the streaming cursor symbol
                 resp_box.markdown(f'<div class="bot-bubble-layer"><b>Assistant</b><br>{full_resp}</div>', unsafe_allow_html=True)
                 st.session_state.chat_history.append({"role": "assistant", "content": full_resp})
             except Exception as e:
-                st.error(f"Engine connection anomaly: {str(e)}")
+                st.error(f"Feel free to ask anything.: {str(e)}")
 
-        # Save session arrays back into JSON configurations dynamically
-        st.session_state.all_sessions[st.session_state.current_session_id]["history"] = st.session_state.chat_history
-        save_sessions(st.session_state.all_sessions)
+        st.session_state.user_sessions[st.session_state.current_session_id]["history"] = st.session_state.chat_history
     st.rerun()
