@@ -3,11 +3,21 @@
    ========================================================================== */
 footer, header, .stAppDeployButton, #MainMenu, 
 [data-testid="stDecoration"], [data-testid="stHeader"], 
-.ViewerBadge, [data-testid="getInTouchLink"] {
+.ViewerBadge, [data-testid="getInTouchLink"],
+.stActionButton, #tabs-bui3-tabpanel-0 + div {
     display: none !important;
     visibility: hidden !important;
     height: 0px !important;
     opacity: 0 !important;
+}
+
+/* Hard-kills the Streamlit Cloud admin toolbar wrappers and floaters */
+[data-testid="stManageAppOverlay"], 
+.stDeploymentButton, 
+[id^="streamlitAdminPanel"],
+div[class^="st-emotion-cache"] > button[aria-label="Close"] + div {
+    display: none !important;
+    visibility: hidden !important;
 }
 
 /* ==========================================================================
@@ -19,7 +29,6 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     font-family: 'Inter', system-ui, sans-serif !important;
 }
 
-/* Restores natural responsive sizing so text fits beautifully on laptop & phone */
 .block-container {
     padding-top: 4rem !important;
     padding-bottom: 7rem !important; 
@@ -247,7 +256,7 @@ div[data-testid="stSidebar"] button:hover {
    9. PERFECT GEMINI-STYLE NATIVE RESPONSIVE DRAWER OVERRIDES
    ========================================================================== */
 
-/* Keep laptop layout fixed and wide */
+/* Keeps desktop/laptop layout structured cleanly */
 @media (min-width: 992px) {
     section[data-testid="stSidebar"] {
         min-width: 280px !important;
@@ -255,17 +264,22 @@ div[data-testid="stSidebar"] button:hover {
     }
 }
 
-/* Perfect mobile slide-out behavior matching Image 3 */
+/* Fixes mobile drawer overlay behavior to allow swiping/hiding */
 @media (max-width: 991px) {
-    /* Let the sidebar act as a temporary overlay panel on top of main feed */
     section[data-testid="stSidebar"] {
         position: fixed !important;
         z-index: 999999 !important;
         background-color: #030a16 !important;
         box-shadow: 10px 0px 30px rgba(0, 0, 0, 0.7);
+        transform: translateX(0) !important;
+        transition: transform 0.3s ease !important;
     }
     
-    /* Ensure the main workspace stays full-width under the slide-out view */
+    /* When user closes sidebar, let it hide completely */
+    section[data-testid="stSidebar"][aria-expanded="false"] {
+        transform: translateX(-100%) !important;
+    }
+
     .main {
         margin-left: 0px !important;
         width: 100% !important;
