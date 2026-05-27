@@ -22,7 +22,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
 /* Base application main container layout grid values */
 .block-container {
     padding-top: 0rem !important;
-    padding-bottom: 5rem !important; 
+    padding-bottom: 6rem !important; 
     width: 90% !important;
     max-width: 900px !important;
     margin: 0 auto !important;
@@ -70,7 +70,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     text-align: center !important;
 }
 
-/* ↕️ HAND-SPACE COMFORT GAP BUFFER (190px space below title) */
+/* ↕️ ONE HAND-SPACE COMFORT GAP BUFFER (190px space below title) */
 .header-spacer-block {
     height: 190px !important;
     display: block !important;
@@ -78,120 +78,24 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
 }
 
 /* ==========================================================================
-   4. "+" CHAT COMPONENT TRIGGER UTILITY ACCENTS
+   4. CLEAN CODES FOR THE "+" ACCENT BUTTON (Matches Reference UI)
    ========================================================================== */
 button[key="permanent_plus_action_btn"] {
-    background-color: #111e38 !important; 
-    color: #00b4d8 !important;           
-    border: 1px solid #1d2d4d !important;
-    border-radius: 8px !important;
-    height: 44px !important;
-    width: 100% !important;
-    font-size: 22px !important;
-    font-weight: 900 !important;
+    background-color: transparent !important; 
+    color: #ffffff !important;           
+    border: none !important;
+    height: 40px !important;
+    width: 40px !important;
+    font-size: 28px !important;
+    font-weight: 300 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
+    margin-top: -10px !important;
+    transition: color 0.2s ease-in-out !important;
 }
 
 button[key="permanent_plus_action_btn"]:hover {
-    background-color: #1d2d4d !important;
-    color: #ffffff !important;
-}
-
-/* ==========================================================================
-   5. NATIVE CHAT INPUT VISIBILITY OVERRIDES (Pure White Text)
-   ========================================================================== */
-.stChatInputContainer, div[data-testid="stChatInput"], [data-testid="stChatInputContainer"] {
-    background-color: #111e38 !important;
-    border: 1px solid #1d2d4d !important;
-    border-radius: 12px !important;
-}
-
-/* FORCE TYPING USER TEXT AND PLACEHOLDERS TO BE PURE STARK WHITE */
-.stChatInputContainer textarea, 
-div[data-testid="stChatInput"] textarea,
-[data-testid="stChatInputContainer"] textarea {
-    color: #ffffff !important;
-    -webkit-text-fill-color: #ffffff !important;
-    font-size: 16px !important;
-    font-weight: 500 !important;
-}
-
-/* ==========================================================================
-   6. FILE UPLOADER COMPONENT LAYOUT DRIVER CARD
-   ========================================================================== */
-.uploader-container-card {
-    background-color: #111e38 !important;
-    border: 2px dashed #00b4d8 !important;
-    border-radius: 10px !important;
-    padding: 15px !important;
-    margin: 10px 0 20px 0 !important;
-}
-
-.uploader-container-card label, .uploader-container-card p, .uploader-container-card span {
-    color: #ffffff !important;
-    font-weight: 600 !important;
-}
-
-/* ==========================================================================
-   7. HIGH CONTRAST READABILITY CHAT MESSAGE BUBBLES
-   ========================================================================== */
-.chat-text-layer, [data-testid="stChatMessage"] p, [data-testid="stChatMessage"] span {
-    color: #ffffff !important;
-    -webkit-text-fill-color: #ffffff !important;
-    font-size: 16px !important;
-    font-weight: 500 !important;
-    line-height: 1.6 !important;
-}
-
-[data-testid="stChatMessage"] {
-    border-radius: 12px !important;
-    margin-bottom: 16px !important;
-    padding: 16px !important;
-}
-
-/* User Message Box Element */
-[data-testid="stChatMessage"]:nth-child(odd) {
-    background-color: #1d2d4d !important; 
-    border-left: 5px solid #00b4d8 !important;
-}
-
-/* Assistant Bot Message Box Element */
-[data-testid="stChatMessage"]:nth-child(even) {
-    background-color: #0c1930 !important; 
-    border: 1px solid #162644 !important;
-}
-
-/* ==========================================================================
-   8. SIDEBAR SYSTEM CONTROL OPTIONS STYLING
-   ========================================================================== */
-[data-testid="stSidebar"] {
-    background-color: #111e38 !important;
-    border-right: 1px solid #1d2d4d !important;
-}
-
-.sidebar-heading { 
-    color: #ffffff !important; 
-    font-weight: 700 !important; 
-    font-size: 1.5rem !important;
-}
-
-.sidebar-subheading { 
-    color: #00b4d8 !important; 
-    font-weight: 700 !important; 
-    font-size: 1.2rem !important;
-}
-
-div[data-testid="stSidebar"] button {
-    background-color: #00b4d8 !important;
-    color: #ffffff !important;
-    font-weight: 700 !important;
-    border: none !important;
-    border-radius: 6px !important;
-}
-
-div[data-testid="stSidebar"] button:hover {
-    background-color: #0077b6 !important;
-}
+    color: #00b4d8 !important;
+    background-color: transparent !important;

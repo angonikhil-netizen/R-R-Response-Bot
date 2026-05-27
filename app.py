@@ -24,7 +24,7 @@ if not HF_TOKEN:
     HF_TOKEN = os.getenv("HF_TOKEN")
 
 if not HF_TOKEN:
-    st.error("Authentication Error: Please try again.")
+    st.error("Error: Please try again.")
     st.stop()
 
 # 1. Page Configuration Setup
@@ -159,7 +159,14 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# File Uploader Option (Renders conditionally right under spacer)
+# Chat Log Main Display Feed
+chat_feed = st.container()
+with chat_feed:
+    for message in st.session_state.chat_history:
+        with st.chat_message(message["role"]):
+            st.markdown(f'<div class="chat-text-layer">{message["content"]}</div>', unsafe_allow_html=True)
+
+# File Uploader Option (Renders conditionally)
 if st.session_state.show_uploader:
     st.markdown('<div class="uploader-container-card">', unsafe_allow_html=True)
     uploaded_file = st.file_uploader(
@@ -172,23 +179,14 @@ if st.session_state.show_uploader:
 else:
     uploaded_file = None
 
-# Chat Log Main Display Feed
-chat_feed = st.container()
-with chat_feed:
-    for message in st.session_state.chat_history:
-        with st.chat_message(message["role"]):
-            st.markdown(f'<div class="chat-text-layer">{message["content"]}</div>', unsafe_allow_html=True)
-
-# Separate Horizontal Utility Drawer containing the "+" button
+# Bottom Utilities Alignment Block (Renders near the native input field)
 col1, col2 = st.columns([0.08, 0.92])
 with col1:
     if st.button("+", key="permanent_plus_action_btn", use_container_width=True):
         st.session_state.show_uploader = not st.session_state.show_uploader
         st.rerun()
-with col2:
-    st.write("") # Pure layout alignment buffer 
 
-# Native Input processing engine at page baseline
+# Native Input processing field
 user_prompt = st.chat_input("Ask a question...")
 
 if user_prompt:
@@ -234,5 +232,5 @@ if user_prompt:
                 st.session_state.all_sessions[st.session_state.current_session_id]["history"] = st.session_state.chat_history
                 save_sessions(st.session_state.all_sessions)
             except Exception as e:
-                st.error(f"Feel free to ask anything: {str(e)}")
+                st.error(f"Feel free to ask anything.: {str(e)}")
     st.rerun()
