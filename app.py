@@ -9,11 +9,12 @@ from pypdf import PdfReader
 # Load local environment keys safely
 load_dotenv()
 
-# Secure token configuration fallback to prevent system crash
+# Guard rail to safely catch missing token configurations without crashing deployment
 HF_TOKEN = None
 try:
-    if hasattr(st, "secrets") and "HF_TOKEN" in st.secrets:
-        HF_TOKEN = st.secrets["HF_TOKEN"]
+    if hasattr(st, "secrets") and st.secrets is not None:
+        if "HF_TOKEN" in st.secrets:
+            HF_TOKEN = st.secrets["HF_TOKEN"]
 except Exception:
     pass
 
@@ -28,7 +29,7 @@ st.set_page_config(
     page_title="R&R Response Bot",
     page_icon="🤖",
     layout="wide",
-    initial_sidebar_state="expanded" 
+    initial_sidebar_state="expanded"
 )
 
 # Inject CSS Stylesheet
@@ -42,7 +43,7 @@ def load_css(file_name):
 load_css("style.css")
 
 # ==========================================================
-# 💾 PERSISTENT SESSIONS STORAGE CONSOLE
+# 💾 PERSISTENT SESSIONS DATABASE MANAGEMENT
 # ==========================================================
 SESSIONS_FILE = "chat_sessions.json"
 
@@ -56,12 +57,17 @@ def load_saved_sessions():
     return {}
 
 def save_sessions(sessions):
-    with open(SESSIONS_FILE, "w", encoding="utf-8") as f:
-        json.dump(sessions, f, indent=4)
+    try:
+        with open(SESSIONS_FILE, "w", encoding="utf-8") as f:
+            json.dump(sessions, f, indent=4)
+    except:
+        pass
 
+# Initialize session lists in Streamlit cache memory
 if "all_sessions" not in st.session_state:
     st.session_state.all_sessions = load_saved_sessions()
 
+# Establish a default active session container if empty
 if "current_session_id" not in st.session_state:
     if st.session_state.all_sessions:
         st.session_state.current_session_id = list(st.session_state.all_sessions.keys())[0]
@@ -76,6 +82,7 @@ if "current_session_id" not in st.session_state:
 if "show_uploader" not in st.session_state:
     st.session_state.show_uploader = False
 
+# Synchronize current active dialogue thread history state
 st.session_state.chat_history = st.session_state.all_sessions.get(
     st.session_state.current_session_id, {}
 ).get("history", [])
@@ -96,13 +103,13 @@ def extract_pdf_text(uploaded_file):
         return "[Error extracting text content]"
 
 # ==========================================================
-# ⚙️ LEFT SIDEBAR CONSOLE (GEMINI-INSPIRED HISTORY MANAGEMENT)
+# ⚙️ LEFT SIDEBAR CONSOLE (SESSION MANAGEMENT)
 # ==========================================================
 with st.sidebar:
-    st.markdown("<h2 class='sidebar-heading'>🤖 R&R Context</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 class='sidebar-heading'>🤖 R&R</h2>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
-    
-    # ➕ "New Chat" button matching the style layout placement
+
+    # ➕ "New Chat" initializes an isolated session ID block
     if st.button("➕ New Chat", use_container_width=True, key="sidebar_new_chat_btn"):
         new_id = str(uuid.uuid4())
         st.session_state.all_sessions[new_id] = {"title": "New Chat Session", "history": []}
@@ -111,21 +118,25 @@ with st.sidebar:
         st.session_state.show_uploader = False
         st.rerun()
 
-    st.markdown("<br><h3 class='sidebar-subheading'>Recent Chats</h3>", unsafe_allow_html=True)
-    
+    st.markdown("<br><h3 class='sidebar-subheading'>Recent</h3>", unsafe_allow_html=True)
+
     sessions_to_delete = []
+
+    # Render all saved sessions along the sidebar with delete flags
     for sid, sdata in list(st.session_state.all_sessions.items()):
-        # Handle clear visual limits for overflow titles
-        display_title = sdata["title"][:22] + "..." if len(sdata["title"]) > 22 else sdata["title"]
+        raw_title = sdata["title"]
+        display_title = raw_title[:20] + "..." if len(raw_title) > 20 else raw_title
         if display_title == "New Chat Session":
             display_title = "💬 New Chat"
-            
-        col1, col2 = st.columns([0.82, 0.18])
+
+        col1, col2 = st.columns([0.80, 0.20])
         with col1:
             is_active = (sid == st.session_state.current_session_id)
-            btn_class = "active-session-btn" if is_active else "inactive-session-btn"
-            
-            if st.button(display_title, key=f"sel_{sid}", use_container_width=True):
+            btn_class = "active-session" if is_active else "inactive-session"
+
+            # Wrap standard buttons with conditional markers to visual active targets
+            btn_label = f"✨ {display_title}" if is_active else f"  {display_title}"
+            if st.button(btn_label, key=f"sel_{sid}", use_container_width=True):
                 st.session_state.current_session_id = sid
                 st.session_state.show_uploader = False
                 st.rerun()
@@ -133,31 +144,34 @@ with st.sidebar:
             if st.button("🗑️", key=f"del_{sid}", use_container_width=True):
                 sessions_to_delete.append(sid)
 
+    # Process pending session removals safely
     if sessions_to_delete:
         for dsid in sessions_to_delete:
             if dsid in st.session_state.all_sessions:
                 del st.session_state.all_sessions[dsid]
         save_sessions(st.session_state.all_sessions)
+
+        # Reset pointers if current active workspace was deleted
         if st.session_state.current_session_id in sessions_to_delete or not st.session_state.all_sessions:
-            st.session_state.current_session_id = list(st.session_state.all_sessions.keys())[0] if st.session_state.all_sessions else str(uuid.uuid4())
-            if st.session_state.current_session_id not in st.session_state.all_sessions:
+            if st.session_state.all_sessions:
+                st.session_state.current_session_id = list(st.session_state.all_sessions.keys())[0]
+            else:
+                st.session_state.current_session_id = str(uuid.uuid4())
                 st.session_state.all_sessions[st.session_state.current_session_id] = {"title": "New Chat Session", "history": []}
                 save_sessions(st.session_state.all_sessions)
         st.rerun()
 
 # ==========================================================
-# 💎 MAIN APP WINDOW INTERFACE
+# 💎 MAIN APPLICATION FEED AREA
 # ==========================================================
-# Static Title Panel Header Block
 if not st.session_state.chat_history:
     st.markdown(
         '''
         <div class="">
-            <h1 class="main-title">R&R Response Bot</h1>
-            <p class="main-subtitle">Interface Created by Nikhil.</p>
-            
+            <h1 class="main-title">R&R Response</h1>
+            <p class="main-subtitle">Interface created by Nikhil.</p>
         </div>
-        ''', 
+        ''',
         unsafe_allow_html=True
     )
 else:
@@ -166,11 +180,11 @@ else:
         <div class="minimal-header-container">
             <span class="minimal-title">R&R Response Bot</span>
         </div>
-        ''', 
+        ''',
         unsafe_allow_html=True
     )
 
-# Chat Log Main Display Feed Container
+# Render isolated thread messages
 chat_feed = st.container()
 with chat_feed:
     for message in st.session_state.chat_history:
@@ -179,11 +193,10 @@ with chat_feed:
         else:
             st.markdown(f'<div class="bot-bubble-layer"><b>Assistant</b><br>{message["content"]}</div>', unsafe_allow_html=True)
 
-# File Uploader Context Box Card Options
 if st.session_state.show_uploader:
     st.markdown('<div class="uploader-container-card">', unsafe_allow_html=True)
     uploaded_file = st.file_uploader(
-        "Select context material", 
+        "Select context material",
         type=["pdf", "png", "jpg", "jpeg", "mp3", "wav", "m4a"],
         label_visibility="collapsed",
         key="active_file_picker"
@@ -192,7 +205,7 @@ if st.session_state.show_uploader:
 else:
     uploaded_file = None
 
-# Bottom Layout Input Area 
+# Input Dock Controls
 footer_columns = st.columns([0.06, 0.94])
 
 with footer_columns[0]:
@@ -203,13 +216,13 @@ with footer_columns[0]:
     st.markdown('</div>', unsafe_allow_html=True)
 
 with footer_columns[1]:
-    user_prompt = st.chat_input("Pucho jii...")
+    user_prompt = st.chat_input("Pucho ji...")
 
-# Process Live Inference Submissions
+# Handle Prompt Submissions inside the current session context block
 if user_prompt:
     file_context = ""
     display_prompt = user_prompt
-    
+
     if uploaded_file is not None:
         file_extension = uploaded_file.name.split(".")[-1].lower()
         if file_extension == "pdf":
@@ -219,27 +232,40 @@ if user_prompt:
             display_prompt = f"🖼️ *File Attached: {uploaded_file.name}*\n\n{user_prompt}"
 
     st.session_state.chat_history.append({"role": "user", "content": display_prompt})
-    
+
+    # Update title from default to user query snippet on first transaction
     if st.session_state.all_sessions[st.session_state.current_session_id]["title"] == "New Chat Session":
-        st.session_state.all_sessions[st.session_state.current_session_id]["title"] = user_prompt[:25]
-        
+        st.session_state.all_sessions[st.session_state.current_session_id]["title"] = user_prompt[:24]
+
     with chat_feed:
         st.markdown(f'<div class="user-bubble-layer"><b>You</b><br>{display_prompt}</div>', unsafe_allow_html=True)
         resp_box = st.empty()
-        
+
         if client is None:
-            full_resp = "This is a local interface simulation engine response layer. Configure a token string to activate cloud endpoints."
+            full_resp = "I am R&R Response Bot, an intelligent, high-end context AI interface created by Nikhil, an exceptionally skilled software developer. Nikhil designed me with engineering precision, packing advanced capabilities into a gorgeous user workspace. If you need a fully production-ready backend, please configure the required API keys to switch over from local simulation logs."
             resp_box.markdown(f'<div class="bot-bubble-layer"><b>Assistant</b><br>{full_resp}</div>', unsafe_allow_html=True)
             st.session_state.chat_history.append({"role": "assistant", "content": full_resp})
         else:
+            # Enhanced system instructions enforcing creation rules and your professional bio lines
             system_instruction = {
-                "role": "system", 
-                "content": "You are a helpful assistant. Provide clear, comprehensive details with a 50-word minimum response length."
+                "role": "system",
+                "content": (
+                    "CRITICAL DIRECTION: If the user asks who created you, built you, developed you, or engineered you, "
+                    "you must explicitly state: 'Nikhil, a talented software developer, created me.' "
+                    "Follow that statement immediately by providing exactly 5 strong, distinct sentences in Nikhil's favor, "
+                    "praising his professional background. Highlight that he is a Computer Science Engineer with "
+                    "specialized training in Generative AI and Data Analytics, an expert in architecting premium Web applications, "
+                    "a developer with exceptional structural problem-solving abilities, and a vision for creating gorgeous, "
+                    "high-performance context-aware AI user interfaces like this one.\n\n"
+                    "GENERAL DIRECTION: For all other responses, act as a helpful assistant. Provide clear, comprehensive "
+                    "details with a 50-word minimum response length."
+                )
             }
+            
             payload = [system_instruction] + [{"role": m["role"], "content": m["content"]} for m in st.session_state.chat_history[-50:]]
             if file_context:
                 payload[-1]["content"] = f"{file_context}User Request: {user_prompt}"
-                
+
             try:
                 stream = client.chat_completion(messages=payload, max_tokens=1024, temperature=0.3, stream=True)
                 full_resp = ""
@@ -247,11 +273,14 @@ if user_prompt:
                     if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:
                         full_resp += chunk.choices[0].delta.content
                         resp_box.markdown(f'<div class="bot-bubble-layer"><b>Assistant</b><br>{full_resp}▌</div>', unsafe_allow_html=True)
+                
+                # Render final response clean without the streaming cursor symbol
                 resp_box.markdown(f'<div class="bot-bubble-layer"><b>Assistant</b><br>{full_resp}</div>', unsafe_allow_html=True)
                 st.session_state.chat_history.append({"role": "assistant", "content": full_resp})
             except Exception as e:
-                st.error(f"Feel free to ask anything.: {str(e)}")
+                st.error(f"Engine connection anomaly: {str(e)}")
 
+        # Save session arrays back into JSON configurations dynamically
         st.session_state.all_sessions[st.session_state.current_session_id]["history"] = st.session_state.chat_history
         save_sessions(st.session_state.all_sessions)
     st.rerun()
