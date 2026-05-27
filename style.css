@@ -216,3 +216,21 @@ div[data-testid="stSidebar"] button:hover {
     color: #ffffff !important;
     border-color: #1b355a !important;
 }
+
+/* Hide the entire top header bar including GitHub, Deploy, and Streamlit menus */
+header[data-testid="stHeader"] {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0px !important;
+}
+
+/* Remove any extra blank space at the top of the page left by the header */
+.stApp {
+    margin-top: -50px !important;
+}
+
+/* Make sure the main content fills the entire screen area */
+.main .block-container {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+}
