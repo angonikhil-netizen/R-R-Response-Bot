@@ -11,10 +11,10 @@ footer, header, .stAppDeployButton, #MainMenu,
 }
 
 /* ==========================================================================
-   2. GLOBAL BODY CORE ENVIRONMENT & SCREEN RESPONSIVENESS
+   2. GLOBAL ROYAL DARK BLUE CORE ENVIRONMENT
    ========================================================================== */
 html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
-    background-color: #061124 !important;
+    background-color: #0d1b2a !important; /* Premium Royal Dark Blue Canvas */
     color: #ffffff !important;             
     font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
 }
@@ -22,9 +22,9 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
 /* Base application main container layout grid values */
 .block-container {
     padding-top: 0rem !important;
-    padding-bottom: 6rem !important; 
+    padding-bottom: 5rem !important; 
     width: 90% !important;
-    max-width: 900px !important;
+    max-width: 950px !important;
     margin: 0 auto !important;
 }
 
@@ -36,14 +36,14 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     top: 0 !important;
     left: 0 !important;
     width: 100% !important;
-    background-color: #061124 !important;
-    z-index: 99999 !important; /* Forces header to stay over scrolling text blocks */
+    background-color: #0d1b2a !important; /* Matches royal background */
+    z-index: 99999 !important; 
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important; 
     align-items: center !important;
     padding: 30px 0 20px 0 !important;
-    border-bottom: 1px solid #162644 !important;
+    border-bottom: 1px solid #1b2a4a !important;
 }
 
 .header-content-center {
@@ -78,24 +78,132 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
 }
 
 /* ==========================================================================
-   4. CLEAN CODES FOR THE "+" ACCENT BUTTON (Matches Reference UI)
+   4. SIDE-BY-SIDE "+" BUTTON STYLE ALIGNMENT
    ========================================================================== */
+.plus-button-positioner {
+    margin-top: 8px !important; /* Perfectly links alignment to match chat input line height */
+}
+
 button[key="permanent_plus_action_btn"] {
-    background-color: transparent !important; 
+    background-color: #1b2a4a !important; 
     color: #ffffff !important;           
-    border: none !important;
-    height: 40px !important;
-    width: 40px !important;
-    font-size: 28px !important;
-    font-weight: 300 !important;
+    border: 1px solid #2e3d52 !important;
+    border-radius: 10px !important;
+    height: 48px !important;
+    width: 100% !important;
+    font-size: 24px !important;
+    font-weight: 700 !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
-    margin-top: -10px !important;
-    transition: color 0.2s ease-in-out !important;
+    transition: all 0.2s ease-in-out !important;
 }
 
 button[key="permanent_plus_action_btn"]:hover {
     color: #00b4d8 !important;
-    background-color: transparent !important;}
+    border-color: #00b4d8 !important;
+    background-color: #13223f !important;
+}
+
+/* ==========================================================================
+   5. HIGH-VISIBILITY NATIVE INPUT OVERRIDES (Pure Stark White Text)
+   ========================================================================== */
+.stChatInputContainer, div[data-testid="stChatInput"], [data-testid="stChatInputContainer"] {
+    background-color: #1b2a4a !important;
+    border: 1px solid #2e3d52 !important;
+    border-radius: 12px !important;
+}
+
+/* FORCE USER TYPING TEXT AND PLACEHOLDERS TO BE PURE STARK WHITE */
+.stChatInputContainer textarea, 
+div[data-testid="stChatInput"] textarea,
+[data-testid="stChatInputContainer"] textarea {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+}
+
+/* Make sure inner input text elements are readable */
+.stChatInputContainer textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* ==========================================================================
+   6. FILE UPLOADER COMPONENT LAYOUT DRIVER CARD
+   ========================================================================== */
+.uploader-container-card {
+    background-color: #1b2a4a !important;
+    border: 2px dashed #00b4d8 !important;
+    border-radius: 10px !important;
+    padding: 15px !important;
+    margin: 10px 0 20px 0 !important;
+}
+
+.uploader-container-card label, .uploader-container-card p, .uploader-container-card span {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}
+
+/* ==========================================================================
+   7. HIGH CONTRAST READABILITY CHAT MESSAGE BUBBLES
+   ========================================================================== */
+.chat-text-layer, [data-testid="stChatMessage"] p, [data-testid="stChatMessage"] span {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    line-height: 1.6 !important;
+}
+
+[data-testid="stChatMessage"] {
+    border-radius: 12px !important;
+    margin-bottom: 16px !important;
+    padding: 16px !important;
+}
+
+/* User Message Box Element */
+[data-testid="stChatMessage"]:nth-child(odd) {
+    background-color: #1f3154 !important; 
+    border-left: 5px solid #00b4d8 !important;
+}
+
+/* Assistant Bot Message Box Element */
+[data-testid="stChatMessage"]:nth-child(even) {
+    background-color: #13223f !important; 
+    border: 1px solid #1b2a4a !important;
+}
+
+/* ==========================================================================
+   8. SIDEBAR SYSTEM CONTROL OPTIONS STYLING
+   ========================================================================== */
+[data-testid="stSidebar"] {
+    background-color: #09131f !important;
+    border-right: 1px solid #1b2a4a !important;
+}
+
+.sidebar-heading { 
+    color: #ffffff !important; 
+    font-weight: 700 !important; 
+    font-size: 1.5rem !important;
+}
+
+.sidebar-subheading { 
+    color: #00b4d8 !important; 
+    font-weight: 700 !important; 
+    font-size: 1.2rem !important;
+}
+
+div[data-testid="stSidebar"] button {
+    background-color: #00b4d8 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border: none !important;
+    border-radius: 6px !important;
+}
+
+div[data-testid="stSidebar"] button:hover {
+    background-color: #0077b6 !important;
+}

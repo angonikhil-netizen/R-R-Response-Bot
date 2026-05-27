@@ -24,7 +24,7 @@ if not HF_TOKEN:
     HF_TOKEN = os.getenv("HF_TOKEN")
 
 if not HF_TOKEN:
-    st.error("Error: Please try again.")
+    st.error("Authentication Error: HF_TOKEN missing. Please configure your token.")
     st.stop()
 
 # 1. Page Configuration Setup
@@ -166,7 +166,7 @@ with chat_feed:
         with st.chat_message(message["role"]):
             st.markdown(f'<div class="chat-text-layer">{message["content"]}</div>', unsafe_allow_html=True)
 
-# File Uploader Option (Renders conditionally)
+# File Uploader Option (Renders conditionally right above the input bar)
 if st.session_state.show_uploader:
     st.markdown('<div class="uploader-container-card">', unsafe_allow_html=True)
     uploaded_file = st.file_uploader(
@@ -179,16 +179,21 @@ if st.session_state.show_uploader:
 else:
     uploaded_file = None
 
-# Bottom Utilities Alignment Block (Renders near the native input field)
-col1, col2 = st.columns([0.08, 0.92])
-with col1:
+# Native Bottom Input Controls Layer (+ Button Beside the Input Box)
+footer_columns = st.columns([0.07, 0.93])
+
+with footer_columns[0]:
+    # Creates a custom div layer around the button to help lock its vertical position
+    st.markdown('<div class="plus-button-positioner">', unsafe_allow_html=True)
     if st.button("+", key="permanent_plus_action_btn", use_container_width=True):
         st.session_state.show_uploader = not st.session_state.show_uploader
         st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# Native Input processing field
-user_prompt = st.chat_input("Ask a question...")
+with footer_columns[1]:
+    user_prompt = st.chat_input("Ask a question...")
 
+# Process Submissions
 if user_prompt:
     file_context = ""
     display_prompt = user_prompt
@@ -232,5 +237,5 @@ if user_prompt:
                 st.session_state.all_sessions[st.session_state.current_session_id]["history"] = st.session_state.chat_history
                 save_sessions(st.session_state.all_sessions)
             except Exception as e:
-                st.error(f"Feel free to ask anything.: {str(e)}")
+                st.error(f"Engine connection anomaly: {str(e)}")
     st.rerun()
