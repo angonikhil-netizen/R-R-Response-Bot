@@ -22,9 +22,9 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
 /* Base application main container layout grid values */
 .block-container {
     padding-top: 0rem !important;
-    padding-bottom: 9rem !important; 
-    width: 95% !important;
-    max-width: 950px !important;
+    padding-bottom: 5rem !important; 
+    width: 90% !important;
+    max-width: 900px !important;
     margin: 0 auto !important;
 }
 
@@ -37,12 +37,12 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     left: 0 !important;
     width: 100% !important;
     background-color: #061124 !important;
-    z-index: 99999 !important; /* Forces header to sit on top of scrolling text bubbles */
+    z-index: 99999 !important; /* Forces header to stay over scrolling text blocks */
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important; 
     align-items: center !important;
-    padding: 25px 0 15px 0 !important;
+    padding: 30px 0 20px 0 !important;
     border-bottom: 1px solid #162644 !important;
 }
 
@@ -55,78 +55,37 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
 
 .main-title {
     color: #ffffff !important;
-    font-size: clamp(1.8rem, 4.5vw, 3rem) !important;
+    font-size: clamp(2rem, 5vw, 3.2rem) !important;
     font-weight: 800 !important;
-    margin: 0 0 6px 0 !important;
+    margin: 0 0 8px 0 !important;
     text-align: center !important;
     letter-spacing: -1px !important;
 }
 
 .main-subtitle {
     color: #00b4d8 !important;   
-    font-size: clamp(0.85rem, 2vw, 1.1rem) !important;
+    font-size: clamp(0.9rem, 2vw, 1.2rem) !important;
     font-weight: 600 !important;
     margin: 0 !important;
     text-align: center !important;
 }
 
-/* ↕️ HAND-SPACE COMFORT GAP BUFFER (Around 180px) */
+/* ↕️ HAND-SPACE COMFORT GAP BUFFER (190px space below title) */
 .header-spacer-block {
-    height: 180px !important;
+    height: 190px !important;
     display: block !important;
     width: 100% !important;
 }
 
 /* ==========================================================================
-   4. STICKY FOOTER CONTROLS HORIZONTAL ALIGNMENT BAR (Plus + Input Together)
-   ========================================================================== */
-.sticky-footer-wrapper {
-    position: fixed !important;
-    bottom: 20px !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: 92% !important;
-    max-width: 950px !important;
-    z-index: 9999 !important;
-    background-color: #0c1930 !important;
-    padding: 12px !important;
-    border-radius: 12px !important;
-    border: 1px solid #162644 !important;
-    box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.5) !important;
-}
-
-/* Ensure horizontal columns sit on a fluid flex-row line across laptops and mobile screens */
-.sticky-footer-wrapper [data-testid="stHorizontalBlock"] {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    width: 100% !important;
-    align-items: center !important;
-    gap: 12px !important;
-}
-
-/* Lock structural behaviors of column modules inside footer container */
-.sticky-footer-wrapper [data-testid="column"] {
-    width: auto !important;
-    min-width: 0 !important;
-    flex-grow: 1 !important;
-}
-
-.sticky-footer-wrapper [data-testid="column"]:first-child {
-    flex-grow: 0 !important;
-    flex-shrink: 0 !important;
-    width: 55px !important; 
-}
-
-/* ==========================================================================
-   5. "+" CHAT COMPONENT TRIGGER UTILITY ACCENTS
+   4. "+" CHAT COMPONENT TRIGGER UTILITY ACCENTS
    ========================================================================== */
 button[key="permanent_plus_action_btn"] {
-    background-color: #00b4d8 !important; 
-    color: #ffffff !important;           
-    border: none !important;
+    background-color: #111e38 !important; 
+    color: #00b4d8 !important;           
+    border: 1px solid #1d2d4d !important;
     border-radius: 8px !important;
-    height: 46px !important;
+    height: 44px !important;
     width: 100% !important;
     font-size: 22px !important;
     font-weight: 900 !important;
@@ -134,49 +93,41 @@ button[key="permanent_plus_action_btn"] {
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
-    box-shadow: 0 4px 12px rgba(0, 180, 216, 0.3) !important;
 }
 
 button[key="permanent_plus_action_btn"]:hover {
-    background-color: #0077b6 !important;
+    background-color: #1d2d4d !important;
+    color: #ffffff !important;
 }
 
 /* ==========================================================================
-   6. HIGH-VISIBILITY TEXT INPUT AREA OVERRIDES
+   5. NATIVE CHAT INPUT VISIBILITY OVERRIDES (Pure White Text)
    ========================================================================== */
-.stChatInputContainer, div[data-testid="stChatInput"] {
+.stChatInputContainer, div[data-testid="stChatInput"], [data-testid="stChatInputContainer"] {
     background-color: #111e38 !important;
     border: 1px solid #1d2d4d !important;
-    border-radius: 8px !important;
-    width: 100% !important;
+    border-radius: 12px !important;
 }
 
-/* FORCE USER TYPING AND PLACEHOLDER TEXT TO BE PURE STARK WHITE */
+/* FORCE TYPING USER TEXT AND PLACEHOLDERS TO BE PURE STARK WHITE */
 .stChatInputContainer textarea, 
 div[data-testid="stChatInput"] textarea,
 [data-testid="stChatInputContainer"] textarea {
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
     font-size: 16px !important;
-    font-weight: 600 !important;
-}
-
-/* Adjust visibility of mock text nodes inside the container input tree */
-div[data-testid="stChatInput"] p, .stChatInputContainer span {
-    color: #ffffff !important;
+    font-weight: 500 !important;
 }
 
 /* ==========================================================================
-   7. FILE UPLOADER COMPONENT LAYOUT DRIVER CARD
+   6. FILE UPLOADER COMPONENT LAYOUT DRIVER CARD
    ========================================================================== */
 .uploader-container-card {
     background-color: #111e38 !important;
     border: 2px dashed #00b4d8 !important;
     border-radius: 10px !important;
     padding: 15px !important;
-    margin: 15px auto !important;
-    width: 92% !important;
-    max-width: 950px !important;
+    margin: 10px 0 20px 0 !important;
 }
 
 .uploader-container-card label, .uploader-container-card p, .uploader-container-card span {
@@ -185,20 +136,20 @@ div[data-testid="stChatInput"] p, .stChatInputContainer span {
 }
 
 /* ==========================================================================
-   8. HIGH CONTRAST READABILITY CHAT MESSAGE BUBBLES
+   7. HIGH CONTRAST READABILITY CHAT MESSAGE BUBBLES
    ========================================================================== */
 .chat-text-layer, [data-testid="stChatMessage"] p, [data-testid="stChatMessage"] span {
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
     font-size: 16px !important;
-    font-weight: 600 !important;
-    line-height: 1.5 !important;
+    font-weight: 500 !important;
+    line-height: 1.6 !important;
 }
 
 [data-testid="stChatMessage"] {
     border-radius: 12px !important;
-    margin-bottom: 14px !important;
-    padding: 14px !important;
+    margin-bottom: 16px !important;
+    padding: 16px !important;
 }
 
 /* User Message Box Element */
@@ -214,7 +165,7 @@ div[data-testid="stChatInput"] p, .stChatInputContainer span {
 }
 
 /* ==========================================================================
-   9. SIDEBAR SYSTEM CONTROL OPTIONS STYLING
+   8. SIDEBAR SYSTEM CONTROL OPTIONS STYLING
    ========================================================================== */
 [data-testid="stSidebar"] {
     background-color: #111e38 !important;

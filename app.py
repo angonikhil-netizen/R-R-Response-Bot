@@ -6,19 +6,25 @@ from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
 from pypdf import PdfReader
 
-# Load local environment keys safely without breaking if st.secrets is missing
+# Load local environment keys safely
 load_dotenv()
-HF_TOKEN = os.getenv("HF_TOKEN")
 
-# Safe check for Streamlit Cloud deployment secrets
+# Initialize token variable safely
+HF_TOKEN = None
+
+# Check Streamlit Secrets first (for Cloud deployments)
 try:
-    if not HF_TOKEN and "HF_TOKEN" in st.secrets:
+    if "HF_TOKEN" in st.secrets:
         HF_TOKEN = st.secrets["HF_TOKEN"]
 except Exception:
-    pass  
+    pass
+
+# Fallback to local environment file if secrets object is unavailable
+if not HF_TOKEN:
+    HF_TOKEN = os.getenv("HF_TOKEN")
 
 if not HF_TOKEN:
-    st.error("Error: Please try again.")
+    st.error("Authentication Error: Please try again.")
     st.stop()
 
 # 1. Page Configuration Setup
@@ -92,7 +98,7 @@ def extract_pdf_text(uploaded_file):
         return "[Error extracting text content]"
 
 # ==========================================================
-# ⚙️ SIDEBAR CONSOLE (Always Visible on Load)
+# ⚙️ SIDEBAR CONSOLE
 # ==========================================================
 with st.sidebar:
     st.markdown("<h2 class='sidebar-heading'>⚙️ System Options</h2>", unsafe_allow_html=True)
@@ -137,9 +143,9 @@ with st.sidebar:
         st.rerun()
 
 # ==========================================================
-# 💎 MAIN APP WINDOW LAYOUT
+# 💎 MAIN APP WINDOW INTERFACE
 # ==========================================================
-# Fixed Single Centered Header Wrapper
+# Centered Fixed Floating Header
 st.markdown(
     '''
     <div class="fixed-header-container">
@@ -153,14 +159,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Chat Log Main Interface Container
-chat_feed = st.container()
-with chat_feed:
-    for message in st.session_state.chat_history:
-        with st.chat_message(message["role"]):
-            st.markdown(f'<div class="chat-text-layer">{message["content"]}</div>', unsafe_allow_html=True)
-
-# File Uploader Dropdown Drawer Component
+# File Uploader Option (Renders conditionally right under spacer)
 if st.session_state.show_uploader:
     st.markdown('<div class="uploader-container-card">', unsafe_allow_html=True)
     uploaded_file = st.file_uploader(
@@ -173,20 +172,25 @@ if st.session_state.show_uploader:
 else:
     uploaded_file = None
 
-# Bottom Control Box Anchor Section (Plus Button + Input Form Box)
-st.markdown('<div class="sticky-footer-wrapper">', unsafe_allow_html=True)
-button_col, input_col = st.columns([0.12, 0.88])
+# Chat Log Main Display Feed
+chat_feed = st.container()
+with chat_feed:
+    for message in st.session_state.chat_history:
+        with st.chat_message(message["role"]):
+            st.markdown(f'<div class="chat-text-layer">{message["content"]}</div>', unsafe_allow_html=True)
 
-with button_col:
+# Separate Horizontal Utility Drawer containing the "+" button
+col1, col2 = st.columns([0.08, 0.92])
+with col1:
     if st.button("+", key="permanent_plus_action_btn", use_container_width=True):
         st.session_state.show_uploader = not st.session_state.show_uploader
         st.rerun()
+with col2:
+    st.write("") # Pure layout alignment buffer 
 
-with input_col:
-    user_prompt = st.chat_input("Ask a question...")
-st.markdown('</div>', unsafe_allow_html=True)
+# Native Input processing engine at page baseline
+user_prompt = st.chat_input("Ask a question...")
 
-# Run Inference Engine on submissions
 if user_prompt:
     file_context = ""
     display_prompt = user_prompt
