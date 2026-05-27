@@ -14,7 +14,7 @@ if st.secrets and "HF_TOKEN" in st.secrets:
     HF_TOKEN = st.secrets["HF_TOKEN"]
 
 if not HF_TOKEN:
-    st.error("Error: Please try again.")
+    st.error("Error: Please provide a valid HF_TOKEN.")
     st.stop()
 
 # 2. Configure Page Alignment Setup - Locks responsive boundaries
@@ -148,7 +148,7 @@ with st.sidebar:
         st.rerun()
 
 # ==========================================================
-# 🛑 SINGLE FIXED HEADER
+# 🛑 STICKY FIXED HEADER BLOCK
 # ==========================================================
 st.markdown(
     '''
@@ -156,15 +156,15 @@ st.markdown(
         <h1 class="main-title">R&R Response Bot</h1>
         <p class="main-subtitle">Context-Interface developed by Nikhil</p>
     </div>
-    <div class="title-spacer"></div>
     ''', 
     unsafe_allow_html=True
 )
 
 # ==========================================================
-# 8. LIVE MESSAGE REGION
+# 📜 INDEPENDENTLY SCROLLABLE CHAT CONTAINER (FROZEN WINDOW)
 # ==========================================================
-chat_scroll_box = st.container()
+# Passing an explicit height parameter anchors the frame and prevents global viewport page drops
+chat_scroll_box = st.container(height=520, border=False)
 
 with chat_scroll_box:
     for message in st.session_state.chat_history:
@@ -172,22 +172,19 @@ with chat_scroll_box:
             st.markdown(f'<div class="chat-text-layer">{message["content"]}</div>', unsafe_allow_html=True)
 
 # ==========================================================
-# 9. HORIZONTAL INPUT & FILE UPLOADER CONTROL ROW
+# 📍 FIXED CONTROL BOTTOM INTERFACE AREA
 # ==========================================================
-input_row = st.container()
-with input_row:
-    button_col, input_col = st.columns([0.06, 0.94])
+st.markdown('<div class="sticky-bottom-wrapper">', unsafe_allow_html=True)
 
-    with button_col:
-        # Fixed native button targeting our specific CSS rule key
-        if st.button("＋", key="permanent_plus_action_btn", use_container_width=True):
-            st.session_state.show_uploader = not st.session_state.show_uploader
-            st.rerun()
+button_col, input_col = st.columns([0.06, 0.94])
+with button_col:
+    if st.button("＋", key="permanent_plus_action_btn", use_container_width=True):
+        st.session_state.show_uploader = not st.session_state.show_uploader
+        st.rerun()
 
-    with input_col:
-        user_prompt = st.chat_input("Ask a question...")
+with input_col:
+    user_prompt = st.chat_input("Ask a question...")
 
-# Context Drop Box Drawer Panel (Triggers below input row smoothly)
 if st.session_state.show_uploader:
     st.markdown('<div class="uploader-container-card">', unsafe_allow_html=True)
     uploaded_file = st.file_uploader(
@@ -206,8 +203,10 @@ if uploaded_file is not None:
         unsafe_allow_html=True
     )
 
+st.markdown('</div>', unsafe_allow_html=True)
+
 # ==========================================================
-# 10. Handle Main Chat Question Input Execution
+# 🚀 CORE PROMPT EXECUTION AND CONSTRAINED INFERENCE LOOP
 # ==========================================================
 if user_prompt:
     file_context = ""
@@ -225,14 +224,12 @@ if user_prompt:
             file_context = f"[System Alert: User attached image '{uploaded_file.name}']\n\n"
             display_prompt = f"🖼️ *Attached Image: {uploaded_file.name}*\n\n{user_prompt}"
 
-    # Push user payload directly into session state logs
+    # Append question locally
     st.session_state.chat_history.append({"role": "user", "content": display_prompt})
     
-    # Update title dynamically if generic
     if st.session_state.all_sessions[st.session_state.current_session_id]["title"] == "New Chat Session":
         st.session_state.all_sessions[st.session_state.current_session_id]["title"] = user_prompt[:22]
     
-    # Immediately render layout changes to block lagging
     with chat_scroll_box:
         with st.chat_message("user"):
             st.markdown(f'<div class="chat-text-layer">{display_prompt}</div>', unsafe_allow_html=True)
@@ -240,11 +237,13 @@ if user_prompt:
         with st.chat_message("assistant"):
             response_placeholder = st.empty()
             
+            # System settings strictly configure a 50+ word expansion minimum limit
             system_instruction = {
                 "role": "system", 
                 "content": (
                     "You are a helpful, highly accurate AI assistant. The current year is 2026. "
-                    "Provide up-to-date information matching this timeline, and do not use outdated knowledge cutoffs."
+                    "CRITICAL RESPONSE DIRECTIVE: Your answer must be detailed, comprehensive, and "
+                    "MUST contain at least 50 words minimum. Do not summarize abruptly or write short responses."
                 )
             }
             
@@ -255,11 +254,10 @@ if user_prompt:
                 payload_messages[-1]["content"] = f"{file_context}User Question: {user_prompt}"
             
             try:
-                # Synchronize inference call stream directly into output container
                 stream = client.chat_completion(
                     messages=payload_messages,
                     max_tokens=1024,
-                    temperature=0.2,
+                    temperature=0.3,
                     stream=True
                 )
                 
@@ -273,7 +271,6 @@ if user_prompt:
                 response_placeholder.markdown(f'<div class="chat-text-layer">{full_response}</div>', unsafe_allow_html=True)
                 st.session_state.chat_history.append({"role": "assistant", "content": full_response})
                 
-                # Write back into historical data array structures
                 st.session_state.all_sessions[st.session_state.current_session_id]["history"] = st.session_state.chat_history
                 save_sessions(st.session_state.all_sessions)
                 
